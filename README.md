@@ -13,10 +13,7 @@ body{
 
 <html>
 
-<body style="
-background:purple;
-color:white;
-text-align:center;
+<body style="text-align:center;
 margin-top:100px;
 ">
 

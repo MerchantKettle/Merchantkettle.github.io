@@ -12,28 +12,29 @@ body{
 </style>
 
 <html>
-<body style= "background:Purple;color:white;text-align:center;margin-top:100px;">
-<h2>Music player</h2>
+
+<body style="
+background:purple;
+color:white;
+text-align:center;
+margin-top:100px;
+">
+
+<h1>Music Player</h1>
 
 <audio id="music">
-<source src="music.mp3" type="audio/mp3>
+  <source src="music.mp3" type="audio/mp3">
 </audio>
 
 <button onclick="playMusic()">
-
 Play Music
-
 </button>
 
 <script>
-
 function playMusic(){
-
-document.getElementByld("music").play();
+  document.getElementById("music").play();
 }
-  
 </script>
 
 </body>
-
 </html>

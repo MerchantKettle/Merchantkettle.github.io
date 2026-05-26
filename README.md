@@ -3,6 +3,7 @@ Practice
 <h1>Isolation</h1>
 <img src="Isolation.jpeg">
 
+</style>
 body{
   margin:0;
   height:100vh;

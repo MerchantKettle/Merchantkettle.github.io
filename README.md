@@ -2,10 +2,7 @@
 Practice 
 <h1>Isolation</h1>
 <img src="Isolation.jpeg">
-<!DOCTYPE html>
-<html>
 
-<head>
 <style>
 body{
   margin:0;

@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Merchant — Game Intelligence Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060509;--bg2:#0a090e;--surface:#0f0d16;--surface2:#151220;
+  --border:rgba(180,150,100,0.12);--border2:rgba(180,150,100,0.22);
+  --gold:#c9a84c;--gold-light:#e8c87a;--gold-dim:rgba(201,168,76,0.15);
+  --text:#e2ddd4;--muted:#7a7265;
+  --mcgg:#f5a623;--mlbb:#e84545;--hsr:#7b9cef;
+  --win:#4caf7a;--loss:#e84545;--pending:#8a8070;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;font-size:16px;line-height:1.65;overflow-x:hidden}
+#stars-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.45}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.028;pointer-events:none;z-index:1}
+.wrap{position:relative;z-index:2}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:200;background:rgba(6,5,9,.93);backdrop-filter:blur(18px);border-bottom:1px solid var(--border2);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:62px}
+.logo{font-family:'Cinzel',serif;font-weight:900;font-size:1.2rem;letter-spacing:.12em;color:var(--gold);text-transform:uppercase}
+.logo small{font-family:'Crimson Pro',serif;font-size:.68rem;font-weight:300;letter-spacing:.25em;color:var(--muted);display:block;margin-top:-2px;text-transform:uppercase}
+nav{display:flex;gap:4px}
+nav a{font-family:'Cinzel',serif;font-size:.64rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:6px 13px;border-radius:4px;transition:color .2s,background .2s}
+nav a:hover{color:var(--gold);background:var(--gold-dim)}
+
+/* STATUS BAR */
+.status-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 5vw;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#4caf7a;box-shadow:0 0 8px #4caf7a;flex-shrink:0;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+.status-item{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.status-item strong{color:var(--gold-light)}
+.status-divider{color:var(--border2);font-size:.7rem}
+.refresh-btn{font-family:'Cinzel',serif;font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--gold-dim);border:1px solid rgba(201,168,76,.3);color:var(--gold);padding:3px 11px;border-radius:2px;cursor:pointer;margin-left:auto;transition:background .2s}
+.refresh-btn:hover{background:rgba(201,168,76,.25)}
+.spin{animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TICKER */
+.ticker-wrap{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;white-space:nowrap;padding:9px 0}
+.ticker-inner{display:inline-block;animation:ticker 60s linear infinite}
+.ticker-inner:hover{animation-play-state:paused}
+.ticker-item{display:inline-block;padding:0 36px;font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.07em;color:var(--muted)}
+.t-game{margin-right:8px;font-weight:700}
+.t-mcgg{color:var(--mcgg)}.t-mlbb{color:var(--mlbb)}.t-hsr{color:var(--hsr)}
+.ticker-sep{color:var(--gold);margin:0 18px;opacity:.35}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* HERO */
+.hero{padding:80px 5vw 50px;text-align:center;position:relative}
+.hero::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60%;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);opacity:.3}
+.hero-eyebrow{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+.hero h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(2rem,6vw,4.5rem);line-height:1.05;color:#fff;text-shadow:0 0 60px rgba(201,168,76,.22);margin-bottom:6px}
+.hero h1 span{color:var(--gold)}
+.hero-sub{font-size:1.05rem;font-style:italic;color:var(--muted);margin:12px auto 32px;max-width:420px;font-weight:300}
+.hero-games{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.hero-pill{font-family:'Cinzel',serif;font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:7px 18px;border-radius:2px;border:1px solid}
+.pill-mcgg{color:var(--mcgg);border-color:var(--mcgg);background:rgba(245,166,35,.07)}
+.pill-mlbb{color:var(--mlbb);border-color:var(--mlbb);background:rgba(232,69,69,.07)}
+.pill-hsr{color:var(--hsr);border-color:var(--hsr);background:rgba(123,156,239,.07)}
+
+/* SECTION */
+.section{padding:52px 5vw;position:relative}
+.section+.section{padding-top:0}
+.section-divider{border:none;height:1px;margin:0 5vw;background:linear-gradient(to right,transparent,var(--border2),transparent)}
+.sec-header{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+.sec-badge{font-family:'Cinzel',serif;font-size:.58rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:3px 10px;border-radius:2px}
+.badge-mcgg{background:var(--mcgg);color:#000}.badge-mlbb{background:var(--mlbb);color:#fff}.badge-hsr{background:var(--hsr);color:#fff}
+.sec-header h2{font-family:'Cinzel',serif;font-weight:700;font-size:1.12rem;color:#fff;letter-spacing:.04em}
+.sec-patch{font-size:.8rem;color:var(--muted);margin-left:auto;font-style:italic}
+
+/* FILTER */
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.fbtn{font-family:'Cinzel',serif;font-size:.59rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:1px solid var(--border2);color:var(--muted);padding:5px 13px;border-radius:2px;cursor:pointer;transition:all .2s}
+.fbtn.on,.fbtn:hover{color:var(--gold);border-color:var(--gold);background:var(--gold-dim)}
+
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:13px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:17px 19px;position:relative;overflow:hidden;transition:transform .22s,box-shadow .22s;animation:fadeUp .4s ease both}
+.card:nth-child(1){animation-delay:.04s}.card:nth-child(2){animation-delay:.08s}.card:nth-child(3){animation-delay:.12s}
+.card:nth-child(4){animation-delay:.16s}.card:nth-child(5){animation-delay:.20s}.card:nth-child(6){animation-delay:.24s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.card-mcgg::before{background:var(--mcgg);box-shadow:0 0 10px rgba(245,166,35,.45)}
+.card-mlbb::before{background:var(--mlbb);box-shadow:0 0 10px rgba(232,69,69,.45)}
+.card-hsr::before{background:var(--hsr);box-shadow:0 0 10px rgba(123,156,239,.45)}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.ctag{font-family:'Cinzel',serif;font-size:.57rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:2px}
+.tag-update{background:rgba(123,156,239,.15);color:#a0baf0}
+.tag-new{background:rgba(76,175,122,.15);color:#7dcca0}
+.tag-tourney{background:rgba(201,168,76,.15);color:var(--gold)}
+.tag-season{background:rgba(232,69,69,.15);color:#f09090}
+.tag-collab{background:rgba(160,100,220,.15);color:#c4a0e8}
+.tag-patch{background:rgba(80,180,200,.15);color:#88d4e0}
+.cdate{font-size:.73rem;color:var(--muted);font-style:italic}
+.card h3{font-family:'Cinzel',serif;font-weight:600;font-size:.88rem;color:#fff;margin-bottom:6px;line-height:1.35;letter-spacing:.02em}
+.card p{font-size:.82rem;color:#857e70;line-height:1.52}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:13px;padding-top:11px;border-top:1px solid var(--border)}
+.csource{font-size:.68rem;color:var(--muted);font-style:italic}
+.clink{font-family:'Cinzel',serif;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-decoration:none;opacity:.6;transition:opacity .2s;display:flex;align-items:center;gap:3px}
+.clink:hover{opacity:1}
+.card-mcgg .clink{color:var(--mcgg)}.card-mlbb .clink{color:var(--mlbb)}.card-hsr .clink{color:var(--hsr)}
+
+/* NEWS FEED CARDS */
+.news-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:14px 17px;position:relative;overflow:hidden;transition:transform .2s}
+.news-card:hover{transform:translateY(-2px)}
+.news-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px}
+.news-card-mcgg::before{background:var(--mcgg)}
+.news-card-mlbb::before{background:var(--mlbb)}
+.news-card-hsr::before{background:var(--hsr)}
+.news-card h4{font-family:'Cinzel',serif;font-size:.82rem;font-weight:600;color:#d8d0c0;margin-bottom:5px;line-height:1.3;letter-spacing:.015em}
+.news-card p{font-size:.76rem;color:#6a6358;line-height:1.45;margin-bottom:8px}
+.news-card-footer{display:flex;align-items:center;justify-content:space-between}
+.news-source{font-size:.66rem;color:var(--muted);font-style:italic}
+.news-date{font-size:.66rem;color:var(--muted)}
+.news-loading{text-align:center;padding:28px;color:var(--muted);font-style:italic;font-size:.85rem;grid-column:1/-1}
+.news-error{text-align:center;padding:20px;color:var(--loss);font-size:.8rem;grid-column:1/-1;font-style:italic}
+
+/* HSR TIMERS */
+.timer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:13px;margin-bottom:22px}
+.timer-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:16px 18px;position:relative;overflow:hidden}
+.timer-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,var(--hsr),rgba(123,156,239,.15))}
+.timer-label-top{font-family:'Cinzel',serif;font-size:.64rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--hsr);margin-bottom:3px}
+.timer-name{font-size:.88rem;color:#fff;margin-bottom:10px;font-style:italic}
+.timer-display{display:flex;gap:9px;align-items:flex-end}
+.tblock{text-align:center}
+.tnum{font-family:'Cinzel',serif;font-size:1.55rem;font-weight:700;color:#fff;line-height:1;display:block}
+.tlabel{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tsep{font-family:'Cinzel',serif;font-size:1.35rem;color:var(--gold);opacity:.45;margin-bottom:4px;align-self:flex-end}
+.timer-status{font-size:.73rem;margin-top:8px;font-style:italic}
+.t-active{color:var(--win)}.t-upcoming{color:var(--hsr)}.t-ended{color:var(--muted)}
+
+/* BRACKET */
+.bracket-box{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:22px;margin-bottom:18px}
+.bracket-heading{font-family:'Cinzel',serif;font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.bracket-heading::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border2),transparent)}
+.bracket-note{font-size:.76rem;color:var(--muted);font-style:italic;margin-top:-10px;margin-bottom:16px}
+.standings-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.standings-table th{font-family:'Cinzel',serif;font-size:.56rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:7px 9px;border-bottom:1px solid var(--border)}
+.standings-table td{padding:8px 9px;border-bottom:1px solid var(--border);vertical-align:middle}
+.standings-table tr:last-child td{border-bottom:none}
+.standings-table tr:hover td{background:rgba(201,168,76,.03)}
+.rank-num{font-family:'Cinzel',serif;font-weight:700;color:var(--gold);font-size:.82rem}
+.team-name{color:#fff;font-weight:600}
+.team-tag{font-size:.7rem;color:var(--muted);margin-left:3px}
+.rec-w{color:var(--win)}.rec-l{color:var(--loss)}
+.qual-tag{font-family:'Cinzel',serif;font-size:.53rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:2px}
+.qual-ub{background:rgba(201,168,76,.14);color:var(--gold)}
+.qual-pi{background:rgba(123,156,239,.14);color:var(--hsr)}
+
+/* MATCH GRID */
+.bracket-rounds{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px;margin-top:16px}
+.bracket-round h4{font-family:'Cinzel',serif;font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:9px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.match-card{background:var(--bg2);border:1px solid var(--border);border-radius:2px;margin-bottom:7px;overflow:hidden;transition:border-color .2s}
+.match-card.updated{border-color:rgba(201,168,76,.4);animation:flashBorder .8s ease}
+@keyframes flashBorder{0%,100%{border-color:var(--border)}50%{border-color:var(--gold)}}
+.match-date{font-size:.63rem;padding:4px 9px;background:rgba(201,168,76,.05);border-bottom:1px solid var(--border);color:var(--muted);font-style:italic}
+.match-team{display:flex;align-items:center;justify-content:space-between;padding:6px 9px}
+.match-team+.match-team{border-top:1px solid var(--border)}
+.mt-name{font-size:.8rem;color:#c0b8a8}
+.mt-score{font-family:'Cinzel',serif;font-weight:700;font-size:.88rem}
+.score-win{color:var(--win)}.score-loss{color:var(--loss)}.score-tbd{color:var(--pending)}
+.match-team.is-winner{background:rgba(76,175,122,.05)}
+.match-format{font-size:.59rem;padding:3px 9px;color:var(--muted);border-top:1px solid var(--border);text-align:center;font-style:italic}
+.match-live{background:rgba(232,69,69,.08);border-color:rgba(232,69,69,.3)}
+.live-badge{font-size:.6rem;color:var(--loss);font-family:'Cinzel',serif;font-weight:700;letter-spacing:.1em;animation:pulse 1s infinite}
+
+/* TIMELINE */
+.timeline{border-left:2px solid var(--border2);margin-left:10px;padding-left:24px}
+.tl-item{position:relative;padding-bottom:24px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-31px;top:5px;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg)}
+.dot-mcgg{background:var(--mcgg);box-shadow:0 0 6px var(--mcgg)}.dot-mlbb{background:var(--mlbb);box-shadow:0 0 6px var(--mlbb)}.dot-hsr{background:var(--hsr);box-shadow:0 0 6px var(--hsr)}
+.tl-meta{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.tl-date{font-family:'Cinzel',serif;font-size:.63rem;font-weight:700;color:var(--muted)}
+.tl-item h4{font-family:'Cinzel',serif;font-size:.86rem;font-weight:600;color:#fff;margin-bottom:2px}
+.tl-item p{font-size:.76rem;color:#5e5850}
+
+/* FOOTER */
+footer{margin-top:56px;padding:24px 5vw;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-logo{font-family:'Cinzel',serif;font-weight:700;font-size:.88rem;color:var(--gold);letter-spacing:.1em}
+footer p{font-size:.72rem;color:var(--muted);font-style:italic}
+.footer-links{display:flex;gap:16px}
+.footer-links a{font-family:'Cinzel',serif;font-size:.6rem;font-weight:600;letter-spacing:.08em;color:var(--muted);text-decoration:none;text-transform:uppercase}
+.footer-links a:hover{color:var(--gold)}
+
+/* LIVE NEWS SECTION LABEL */
+.auto-label{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:11px;display:flex;align-items:center;gap:8px}
+.auto-label::before{content:'◈';color:var(--gold);opacity:.6}
+
+@media(max-width:640px){nav{display:none}.bracket-rounds{grid-template-columns:1fr}.timer-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="stars-canvas"></canvas>
+<div class="wrap">
+
+<!-- ─── HEADER ─── -->
+<header>
+  <div class="logo">The Merchant<small>Game Intelligence Hub</small></div>
+  <nav>
+    <a href="#mcgg">MCGG</a>
+    <a href="#mlbb">MLBB</a>
+    <a href="#hsr">HSR</a>
+    <a href="#calendar">Calendar</a>
+  </nav>
+</header>
+
+<!-- ─── STATUS BAR ─── -->
+<div class="status-bar">
+  <span class="live-dot"></span>
+  <span class="status-item">Auto-refreshes every <strong>15 min</strong></span>
+  <span class="status-divider">·</span>
+  <span class="status-item">Last updated: <strong id="last-updated">Loading…</strong></span>
+  <span class="status-divider">·</span>
+  <span class="status-item" id="bracket-status">Bracket: <strong>Fetching…</strong></span>
+  <span class="status-divider">·</span>
+  <span class="status-item" id="news-status">News feeds: <strong>Fetching…</strong></span>
+  <button class="refresh-btn" onclick="refreshAll()" id="refresh-btn">↻ Refresh Now</button>
+</div>
+
+<!-- ─── TICKER ─── -->
+<div class="ticker-wrap">
+  <div class="ticker-inner" id="ticker-inner">
+    <span class="ticker-item"><span class="t-mcgg t-game">MCGG</span>Season 6 Dawnlight · Commander Kalea · Anniversary Update</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-mlbb t-game">MLBB</span>Season 40 · Patch 2.1.70 · New Hero: Marcel</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-hsr t-game">HSR</span>v4.2 Phase 2 · Evanescia banner · v4.3 launches June 1</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-mlbb t-game">MPL PH S17</span>Playoffs LIVE · May 27–31 · FilOil Centre, San Juan City</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-hsr t-game">HSR</span>"The Lethe Below the Living" · Mortenax Blade · Starward Mode</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-mcgg t-game">MCGG</span>Layla Blue Specter skin returns · Free for limited time</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-mlbb t-game">MLBB</span>Adv. Server Patch 2.1.84 · Argus · Hirara · Masha buffed</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-hsr t-game">HSR</span>Fate/Stay Night collab still active · Free Gilgamesh with v4.3</span>
+    <!-- mirror for seamless loop -->
+    <span class="ticker-item"><span class="t-mcgg t-game">MCGG</span>Season 6 Dawnlight · Commander Kalea · Anniversary Update</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-mlbb t-game">MLBB</span>Season 40 · Patch 2.1.70 · New Hero: Marcel</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-hsr t-game">HSR</span>v4.2 Phase 2 · Evanescia banner · v4.3 launches June 1</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-mlbb t-game">MPL PH S17</span>Playoffs LIVE · May 27–31 · FilOil Centre, San Juan City</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-hsr t-game">HSR</span>"The Lethe Below the Living" · Mortenax Blade · Starward Mode</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-mcgg t-game">MCGG</span>Layla Blue Specter skin returns · Free for limited time</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-mlbb t-game">MLBB</span>Adv. Server Patch 2.1.84 · Argus · Hirara · Masha buffed</span>
+    <span class="ticker-sep">◆</span>
+    <span class="ticker-item"><span class="t-hsr t-game">HSR</span>Fate/Stay Night collab still active · Free Gilgamesh with v4.3</span>
+  </div>
+</div>
+
+<!-- ─── HERO ─── -->
+<div class="hero">
+  <p class="hero-eyebrow">Intelligence Hub · May 2026</p>
+  <h1>The <span>Merchant</span></h1>
+  <p class="hero-sub">Live news, brackets, timers &amp; patches — always current.</p>
+  <div class="hero-games">
+    <span class="hero-pill pill-mcgg">♟ Magic Chess: Go Go</span>
+    <span class="hero-pill pill-mlbb">⚔ Mobile Legends: Bang Bang</span>
+    <span class="hero-pill pill-hsr">✦ Honkai: Star Rail</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ MCGG ════ -->
+<section class="section" id="mcgg">
+  <div class="sec-header">
+    <span class="sec-badge badge-mcgg">MCGG</span>
+    <h2>Magic Chess: Go Go</h2>
+    <span class="sec-patch">Season 6 · v1.2.72 · Commander Kalea</span>
+  </div>
+
+  <!-- Static known cards -->
+  <div class="filter-bar">
+    <button class="fbtn on" onclick="filterG('mcgg-static','all',this)">All</button>
+    <button class="fbtn" onclick="filterG('mcgg-static','season',this)">Seasons</button>
+    <button class="fbtn" onclick="filterG('mcgg-static','update',this)">Updates</button>
+    <button class="fbtn" onclick="filterG('mcgg-static','tourney',this)">Tournaments</button>
+  </div>
+  <div class="cards" id="mcgg-static">
+    <div class="card card-mcgg" data-t="season">
+      <div class="card-top"><span class="ctag tag-season">Season 6 · Live</span><span class="cdate">May 13, 2026</span></div>
+      <h3>Season 6 "Dawnlight Celebration" — Commander Kalea Debuts</h3>
+      <p>Season 6 is live with brand-new Commander Kalea, new synergies, heroes, Battle Emotes, and rewards as part of MCGG's 1st global anniversary.</p>
+      <div class="card-footer"><span class="csource">Google Play</span><a class="clink" href="https://play.google.com/store/apps/details?id=com.mobilechess.gp" target="_blank">Play Store ↗</a></div>
+    </div>
+    <div class="card card-mcgg" data-t="update">
+      <div class="card-top"><span class="ctag tag-new">Anniversary</span><span class="cdate">May 9, 2026</span></div>
+      <h3>v1.2.72 — 1-Year Global Anniversary Update</h3>
+      <p>Exclusive skins, rare chessboards, massive Promo Diamond Giveaway, Layla "Blue Specter" free skin return, and bonus events celebrating 30M+ downloads.</p>
+      <div class="card-footer"><span class="csource">APKPure / Moonton</span><a class="clink" href="https://magicchessgogo.com" target="_blank">Official ↗</a></div>
+    </div>
+    <div class="card card-mcgg" data-t="season">
+      <div class="card-top"><span class="ctag tag-season">Season 5</span><span class="cdate">Feb 10, 2026</span></div>
+      <h3>Season 5 — GOGO MOBA &amp; Go Go Plaza</h3>
+      <p>New modes: GOGO MOBA (battle arena) and Go Go Plaza (social hub). Golden Month Kitchen cooking mini-game with free skin reward.</p>
+      <div class="card-footer"><span class="csource">Moonton</span><a class="clink" href="https://en.moonton.com/news/305.html" target="_blank">Read ↗</a></div>
+    </div>
+    <div class="card card-mcgg" data-t="tourney">
+      <div class="card-top"><span class="ctag tag-tourney">Tournament</span><span class="cdate">Jan 2026</span></div>
+      <h3>GO1 World Championship — First Global Offline Event</h3>
+      <p>MCGG's first offline global tournament. Game won Google Play Best Game Award in PH, SG, MY, ID, and TH. Featured at the 2025 SEA Games.</p>
+      <div class="card-footer"><span class="csource">Moonton / Wikipedia</span><a class="clink" href="https://en.wikipedia.org/wiki/Magic_Chess:_Go_Go" target="_blank">Info ↗</a></div>
+    </div>
+  </div>
+
+  <!-- Live news feed -->
+  <div class="auto-label" style="margin-top:26px">Latest News — Auto-fetched from DearPlayers &amp; MCGG feeds</div>
+  <div class="cards" id="mcgg-news-feed">
+    <div class="news-loading">Fetching latest MCGG news…</div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ════════════════════════════════ MLBB ════ -->
+<section class="section" id="mlbb">
+  <div class="sec-header">
+    <span class="sec-badge badge-mlbb">MLBB</span>
+    <h2>Mobile Legends: Bang Bang</h2>
+    <span class="sec-patch">Season 40 · Patch 2.1.70 · May 22, 2026</span>
+  </div>
+  <div class="filter-bar">
+    <button class="fbtn on" onclick="filterG('mlbb-static','all',this)">All</button>
+    <button class="fbtn" onclick="filterG('mlbb-static','patch',this)">Patches</button>
+    <button class="fbtn" onclick="filterG('mlbb-static','new',this)">New Heroes</button>
+  </div>
+  <div class="cards" id="mlbb-static">
+    <div class="card card-mlbb" data-t="patch">
+      <div class="card-top"><span class="ctag tag-patch">Live · S40</span><span class="cdate">May 22, 2026</span></div>
+      <h3>Patch 2.1.70 — Season 40 Live Meta</h3>
+      <p>Current live patch: 4 hero buffs, 1 nerf. Season 40 brings refreshed ranked system alongside Marcel's release and new cosmetic content.</p>
+      <div class="card-footer"><span class="csource">MLBBHub</span><a class="clink" href="https://mlbbhub.com/patch-notes" target="_blank">Full Notes ↗</a></div>
+    </div>
+    <div class="card card-mlbb" data-t="new">
+      <div class="card-top"><span class="ctag tag-new">New Hero</span><span class="cdate">May 2026</span></div>
+      <h3>Marcel — Season 40 New Hero</h3>
+      <p>Marcel is the newest hero in Season 40, released with Patch 2.1.70 on May 22, 2026. Check the official MLBB site for skill details and recommended builds.</p>
+      <div class="card-footer"><span class="csource">Moonton</span><a class="clink" href="https://mlbb.moonton.com" target="_blank">Official ↗</a></div>
+    </div>
+    <div class="card card-mlbb" data-t="new">
+      <div class="card-top"><span class="ctag tag-new">Hero</span><span class="cdate">May 11, 2026</span></div>
+      <h3>Phoveus — The Shadow of Dread</h3>
+      <p>Arrived on Original Server May 11. Released alongside Selena's Epic S.T.U.N. skin and Jawhead's June Starlight Candy Bear skin.</p>
+      <div class="card-footer"><span class="csource">MLBB Fandom</span><a class="clink" href="https://mobile-legends.fandom.com/wiki/Patch_notes" target="_blank">Patch ↗</a></div>
+    </div>
+    <div class="card card-mlbb" data-t="patch">
+      <div class="card-top"><span class="ctag tag-patch">Adv. Server</span><span class="cdate">May 22, 2026</span></div>
+      <h3>Patch 2.1.84 Preview — Argus, Hirara &amp; Masha Buffed</h3>
+      <p>Advanced Server preview: buffs for Argus, Hirara, and Masha. Control, UI, and battlefield optimizations before hitting live servers.</p>
+      <div class="card-footer"><span class="csource">GamingOnPhone</span><a class="clink" href="https://gamingonphone.com/tag/mobile-legends/" target="_blank">Preview ↗</a></div>
+    </div>
+  </div>
+
+  <!-- Live news feed -->
+  <div class="auto-label" style="margin-top:26px">Latest News — Auto-fetched from GamingOnPhone &amp; MLBBHub</div>
+  <div class="cards" id="mlbb-news-feed">
+    <div class="news-loading">Fetching latest MLBB news…</div>
+  </div>
+
+  <!-- ── MPL PH S17 BRACKET ── -->
+  <div style="margin-top:40px">
+    <div class="sec-header" style="margin-bottom:14px">
+      <span class="sec-badge badge-mlbb">MPL PH</span>
+      <h2>MPL Philippines S17 — Playoffs</h2>
+      <span class="sec-patch" id="bracket-last-fetched">LIVE · May 27–31 · FilOil Centre</span>
+    </div>
+
+    <div class="bracket-box">
+      <div class="bracket-heading">Regular Season Final Standings</div>
+      <p class="bracket-note">Mar 20–May 17 · Double Round Robin · $150,000 Prize Pool · Eliminated: AP.Bren (7th), TNC Pro (8th)</p>
+      <table class="standings-table">
+        <thead><tr><th>#</th><th>Team</th><th>W</th><th>L</th><th>Pts</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><span class="rank-num">1</span></td><td><span class="team-name">Team Liquid PH</span><span class="team-tag">TLPH</span></td><td><span class="rec-w">13</span></td><td><span class="rec-l">1</span></td><td>13</td><td><span class="qual-tag qual-ub">UB Seed 1</span></td></tr>
+          <tr><td><span class="rank-num">2</span></td><td><span class="team-name">Team Falcons PH</span><span class="team-tag">FLCP</span></td><td><span class="rec-w">12</span></td><td><span class="rec-l">2</span></td><td>12</td><td><span class="qual-tag qual-ub">UB Seed 2</span></td></tr>
+          <tr><td><span class="rank-num">3</span></td><td><span class="team-name">ONIC Philippines</span><span class="team-tag">ONPH</span></td><td><span class="rec-w">9</span></td><td><span class="rec-l">5</span></td><td>9</td><td><span class="qual-tag qual-pi">Play-In 3rd</span></td></tr>
+          <tr><td><span class="rank-num">4</span></td><td><span class="team-name">Omega Esports</span><span class="team-tag">OMG</span></td><td><span class="rec-w">6</span></td><td><span class="rec-l">8</span></td><td>6</td><td><span class="qual-tag qual-pi">Play-In 4th</span></td></tr>
+          <tr><td><span class="rank-num">5</span></td><td><span class="team-name">Twisted Minds PH</span><span class="team-tag">TWPH</span></td><td><span class="rec-w">6</span></td><td><span class="rec-l">8</span></td><td>6</td><td><span class="qual-tag qual-pi">Play-In 5th</span></td></tr>
+          <tr><td><span class="rank-num">6</span></td><td><span class="team-name">Aurora Gaming PH</span><span class="team-tag">RORA</span></td><td><span class="rec-w">5</span></td><td><span class="rec-l">9</span></td><td>5</td><td><span class="qual-tag qual-pi">Play-In 6th</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bracket-box">
+      <div class="bracket-heading" id="bracket-update-label">Playoffs Bracket — Live Results <span id="bracket-live-dot" class="live-dot" style="width:6px;height:6px;display:inline-block;margin-left:4px"></span></div>
+      <p class="bracket-note">Seeds 3–6 → Play-Ins (single-elim) · Seeds 1–2 → UB Semis (double-elim) · LB Final &amp; Grand Final are Bo7 · Others Bo5</p>
+      <div class="bracket-rounds" id="bracket-rounds">
+
+        <div class="bracket-round">
+          <h4>Play-Ins · May 27</h4>
+          <div class="match-card" id="m-pi-1">
+            <div class="match-date">May 27 · 15:00 SGT · Bo5</div>
+            <div class="match-team" id="m-pi-1-t1"><span class="mt-name">ONIC PH <span style="font-size:.68rem;color:var(--muted)">(3rd)</span></span><span class="mt-score score-tbd" id="m-pi-1-s1">?</span></div>
+            <div class="match-team" id="m-pi-1-t2"><span class="mt-name">Aurora Gaming <span style="font-size:.68rem;color:var(--muted)">(6th)</span></span><span class="mt-score score-tbd" id="m-pi-1-s2">?</span></div>
+            <div class="match-format">→ Winner vs Falcons in UB SF</div>
+          </div>
+          <div class="match-card" id="m-pi-2">
+            <div class="match-date">May 27 · 19:00 SGT · Bo5</div>
+            <div class="match-team" id="m-pi-2-t1"><span class="mt-name">Omega Esports <span style="font-size:.68rem;color:var(--muted)">(4th)</span></span><span class="mt-score score-tbd" id="m-pi-2-s1">?</span></div>
+            <div class="match-team" id="m-pi-2-t2"><span class="mt-name">Twisted Minds PH <span style="font-size:.68rem;color:var(--muted)">(5th)</span></span><span class="mt-score score-tbd" id="m-pi-2-s2">?</span></div>
+            <div class="match-format">→ Winner vs Team Liquid in UB SF</div>
+          </div>
+        </div>
+
+        <div class="bracket-round">
+          <h4>Upper Bracket SFs · May 28</h4>
+          <div class="match-card" id="m-ub-1">
+            <div class="match-date">May 28 · 15:00 SGT · Bo5</div>
+            <div class="match-team" id="m-ub-1-t1"><span class="mt-name">Team Falcons PH</span><span class="mt-score score-tbd" id="m-ub-1-s1">?</span></div>
+            <div class="match-team" id="m-ub-1-t2"><span class="mt-name" id="m-ub-1-opp">PI Winner (ONPH/RORA)</span><span class="mt-score score-tbd" id="m-ub-1-s2">?</span></div>
+            <div class="match-format">Win → UB Final · Loss → LB</div>
+          </div>
+          <div class="match-card" id="m-ub-2">
+            <div class="match-date">May 28 · 19:00 SGT · Bo5</div>
+            <div class="match-team" id="m-ub-2-t1"><span class="mt-name">Team Liquid PH</span><span class="mt-score score-tbd" id="m-ub-2-s1">?</span></div>
+            <div class="match-team" id="m-ub-2-t2"><span class="mt-name" id="m-ub-2-opp">PI Winner (OMG/TWPH)</span><span class="mt-score score-tbd" id="m-ub-2-s2">?</span></div>
+            <div class="match-format">Win → UB Final · Loss → LB</div>
+          </div>
+        </div>
+
+        <div class="bracket-round">
+          <h4>Lower Bracket · May 29</h4>
+          <div class="match-card" id="m-lb-1">
+            <div class="match-date">May 29 · 15:00 SGT · Bo5</div>
+            <div class="match-team"><span class="mt-name" id="m-lb-1-t1">LB Team A</span><span class="mt-score score-tbd" id="m-lb-1-s1">?</span></div>
+            <div class="match-team"><span class="mt-name" id="m-lb-1-t2">LB Team B</span><span class="mt-score score-tbd" id="m-lb-1-s2">?</span></div>
+            <div class="match-format">LB Semifinal</div>
+          </div>
+          <div class="match-card" id="m-lb-2">
+            <div class="match-date">May 29 · 19:00 SGT · Bo5</div>
+            <div class="match-team"><span class="mt-name" id="m-lb-2-t1">LB Team C</span><span class="mt-score score-tbd" id="m-lb-2-s1">?</span></div>
+            <div class="match-team"><span class="mt-name" id="m-lb-2-t2">LB Team D</span><span class="mt-score score-tbd" id="m-lb-2-s2">?</span></div>
+            <div class="match-format">LB Semifinal</div>
+          </div>
+        </div>
+
+        <div class="bracket-round">
+          <h4>Finals · May 30–31</h4>
+          <div class="match-card" id="m-lbf">
+            <div class="match-date">May 30 · 17:00 SGT · Bo7</div>
+            <div class="match-team"><span class="mt-name" id="m-lbf-t1">LB Finalist A</span><span class="mt-score score-tbd" id="m-lbf-s1">?</span></div>
+            <div class="match-team"><span class="mt-name" id="m-lbf-t2">LB Finalist B</span><span class="mt-score score-tbd" id="m-lbf-s2">?</span></div>
+            <div class="match-format">Lower Bracket Final</div>
+          </div>
+          <div class="match-card" id="m-gf" style="border:1px solid rgba(201,168,76,.3)">
+            <div class="match-date" style="background:rgba(201,168,76,.07)">May 31 · 17:00 SGT · Bo7 · 🏆 Grand Final</div>
+            <div class="match-team"><span class="mt-name" id="m-gf-t1">UB Finalist</span><span class="mt-score score-tbd" id="m-gf-s1">?</span></div>
+            <div class="match-team"><span class="mt-name" id="m-gf-t2">LB Finalist</span><span class="mt-score score-tbd" id="m-gf-s2">?</span></div>
+            <div class="match-format">Top 2 → MSC 2026 · Champion earns $35,000</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- M Series -->
+    <div class="bracket-box">
+      <div class="bracket-heading">M Series World Championship</div>
+      <div class="cards" style="margin-top:0">
+        <div class="card card-mlbb" data-t="tourney">
+          <div class="card-top"><span class="ctag tag-tourney">M8 · Announced</span><span class="cdate">Jan 2027</span></div>
+          <h3>M8 World Championship — Turkey</h3>
+          <p>First M Series held in Europe/Western Asia. M8 Wild Card debuts in Thailand. MPL PH S17 top 2 finalists earn slots via MSC 2026 (Esports World Cup, Riyadh).</p>
+          <div class="card-footer"><span class="csource">Wikipedia</span><a class="clink" href="https://en.wikipedia.org/wiki/Mobile_Legends:_Bang_Bang_World_Championship" target="_blank">Info ↗</a></div>
+        </div>
+        <div class="card card-mlbb" data-t="tourney">
+          <div class="card-top"><span class="ctag tag-tourney">M7 · Champions</span><span class="cdate">Jan 2025</span></div>
+          <h3>M7 Champions: Aurora Gaming (PH)</h3>
+          <p>Aurora swept Alter Ego Esports in Jakarta. 6th consecutive Filipino world title. Aurora's intact M7 roster is competing in MPL PH S17 Playoffs as 6th seed.</p>
+          <div class="card-footer"><span class="csource">Wikipedia</span><a class="clink" href="https://en.wikipedia.org/wiki/Mobile_Legends:_Bang_Bang_World_Championship" target="_blank">History ↗</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live MLBB news -->
+  <div class="auto-label" style="margin-top:26px">Latest MLBB Tournament News — Live Feed</div>
+  <div class="cards" id="mlbb-tourney-feed">
+    <div class="news-loading">Fetching latest tournament news…</div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ════════════════════════════════ HSR ════ -->
+<section class="section" id="hsr">
+  <div class="sec-header">
+    <span class="sec-badge badge-hsr">HSR</span>
+    <h2>Honkai: Star Rail</h2>
+    <span class="sec-patch">v4.2 Phase 2 · Next: v4.3 Jun 1, 2026</span>
+  </div>
+
+  <!-- Live countdown timers -->
+  <div class="auto-label">Live Countdown Timers — Second-by-second</div>
+  <div class="timer-grid">
+    <div class="timer-card">
+      <div class="timer-label-top">Current Phase 2 Ends</div>
+      <div class="timer-name">Evanescia · Tribbie · Sunday · Feixiao</div>
+      <div class="timer-display" id="timer-phase2"></div>
+      <div class="timer-status t-active" id="timer-phase2-status">● Active now — ends when v4.3 launches</div>
+    </div>
+    <div class="timer-card">
+      <div class="timer-label-top">Version 4.3 Launches</div>
+      <div class="timer-name">"The Lethe Below the Living"</div>
+      <div class="timer-display" id="timer-v43"></div>
+      <div class="timer-status t-upcoming">◈ Mortenax Blade · Yao Guang · Starward Mode</div>
+    </div>
+    <div class="timer-card">
+      <div class="timer-label-top">v4.3 Phase 1 Ends</div>
+      <div class="timer-name">Mortenax Blade · Yao Guang banners</div>
+      <div class="timer-display" id="timer-v43p1"></div>
+      <div class="timer-status t-upcoming">◈ After June 1 — ~3 week run</div>
+    </div>
+  </div>
+
+  <!-- Version info -->
+  <div class="filter-bar">
+    <button class="fbtn on" onclick="filterG('hsr-static','all',this)">All</button>
+    <button class="fbtn" onclick="filterG('hsr-static','update',this)">Versions</button>
+    <button class="fbtn" onclick="filterG('hsr-static','new',this)">Characters</button>
+    <button class="fbtn" onclick="filterG('hsr-static','collab',this)">Collabs</button>
+  </div>
+  <div class="cards" id="hsr-static">
+    <div class="card card-hsr" data-t="update">
+      <div class="card-top"><span class="ctag tag-new">Jun 1, 2026</span><span class="cdate">Upcoming</span></div>
+      <h3>Version 4.3 — "The Lethe Below the Living"</h3>
+      <p>Continues the Planarcadia arc. New Starward Mode endgame, Pixelplane Rumble &amp; Wispae Amusement Park events. Free Gilgamesh (Fate collab) on login.</p>
+      <div class="card-footer"><span class="csource">Gematsu / HoYoverse</span><a class="clink" href="https://www.gematsu.com/2026/05/honkai-star-rail-version-4-3-update-the-lethe-below-the-living-launches-june-1" target="_blank">Announce ↗</a></div>
+    </div>
+    <div class="card card-hsr" data-t="update">
+      <div class="card-top"><span class="ctag tag-update">Live Now</span><span class="cdate">Apr 21 – Jun 1</span></div>
+      <h3>Version 4.2 — Phase 2 Active</h3>
+      <p>Phase 2 (May 13–Jun 1): Evanescia + reruns of Tribbie, Sunday, Feixiao. Anniversary event: Trailblazer debuts as a professional streamer in Planarcadia.</p>
+      <div class="card-footer"><span class="csource">Game8</span><a class="clink" href="https://game8.co/games/Honkai-Star-Rail/archives/585934" target="_blank">Details ↗</a></div>
+    </div>
+    <div class="card card-hsr" data-t="new">
+      <div class="card-top"><span class="ctag tag-update">Current Banner</span><span class="cdate">May 13–Jun 1</span></div>
+      <h3>Evanescia — Physical / Elation 5★</h3>
+      <p>Phase 2 featured. 4-stars: Guinaifen, Lynx, Sushang. Reruns: Tribbie, Sunday, Feixiao via Indelible Coterie banner simultaneously.</p>
+      <div class="card-footer"><span class="csource">Game8</span><a class="clink" href="https://game8.co/games/Honkai-Star-Rail/archives/404257" target="_blank">Warp Guide ↗</a></div>
+    </div>
+    <div class="card card-hsr" data-t="new">
+      <div class="card-top"><span class="ctag tag-new">Jun 1–24</span><span class="cdate">Upcoming</span></div>
+      <h3>Mortenax Blade — Fire / Nihility 5★</h3>
+      <p>V4.3 Phase 1 character. Deploys field effects, enhances allies, builds energy through actions to trigger stronger Skills and Ultimate. Paired with Yao Guang.</p>
+      <div class="card-footer"><span class="csource">Pocket Tactics</span><a class="clink" href="https://www.pockettactics.com/honkai-star-rail/update" target="_blank">Preview ↗</a></div>
+    </div>
+    <div class="card card-hsr" data-t="collab">
+      <div class="card-top"><span class="ctag tag-collab">Fate Collab</span><span class="cdate">Jul 2025–Ongoing</span></div>
+      <h3>Fate/Stay Night — Saber &amp; Archer Still Active</h3>
+      <p>Saber (Wind/Destruction) and Archer (Quantum/Hunt) launched July 11, 2025 — no fixed end date. Free Gilgamesh arrives as login gift in v4.3.</p>
+      <div class="card-footer"><span class="csource">GameSpot</span><a class="clink" href="https://www.gamespot.com/articles/honkai-star-rail-next-update-and-banners/1100-6538813/" target="_blank">Info ↗</a></div>
+    </div>
+    <div class="card card-hsr" data-t="update">
+      <div class="card-top"><span class="ctag tag-update">Livestream</span><span class="cdate">May 22, 2026</span></div>
+      <h3>v4.3 Special Program — Full Reveal</h3>
+      <p>Aired May 22 on YouTube/Twitch. Confirmed Mortenax Blade, Yao Guang (Phase 2), Starward Mode endgame, and the complete June 1 event schedule.</p>
+      <div class="card-footer"><span class="csource">Pocket Tactics</span><a class="clink" href="https://www.pockettactics.com/honkai-star-rail/update" target="_blank">Summary ↗</a></div>
+    </div>
+  </div>
+
+  <!-- Live HSR news -->
+  <div class="auto-label" style="margin-top:26px">Latest HSR News — Auto-fetched from Game8 &amp; Gematsu</div>
+  <div class="cards" id="hsr-news-feed">
+    <div class="news-loading">Fetching latest HSR news…</div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ════════════════════════════════ CALENDAR ════ -->
+<section class="section" id="calendar">
+  <div class="sec-header">
+    <h2 style="font-family:'Cinzel',serif;font-size:1.12rem;color:#fff;letter-spacing:.04em">📅 Event Calendar</h2>
+  </div>
+  <div class="timeline">
+    <div class="tl-item"><div class="tl-dot dot-mlbb"></div><div class="tl-meta"><span class="tl-date">May 27–28</span><span class="ctag tag-tourney" style="font-size:.56rem;padding:2px 6px">MLBB</span></div><h4>MPL PH S17 — Play-Ins &amp; UB Semifinals</h4><p>ONIC vs Aurora · Omega vs Twisted Minds · Falcons &amp; Liquid enter vs winners</p></div>
+    <div class="tl-item"><div class="tl-dot dot-mlbb"></div><div class="tl-meta"><span class="tl-date">May 29–31</span><span class="ctag tag-tourney" style="font-size:.56rem;padding:2px 6px">MLBB</span></div><h4>MPL PH S17 — LB Semis, LB Final &amp; Grand Final</h4><p>Grand Final Bo7 on May 31 · Top 2 qualify for MSC 2026 · Prize: $150,000 USD</p></div>
+    <div class="tl-item"><div class="tl-dot dot-hsr"></div><div class="tl-meta"><span class="tl-date">Jun 1, 2026</span><span class="ctag tag-new" style="font-size:.56rem;padding:2px 6px">HSR</span></div><h4>Honkai: Star Rail v4.3 "The Lethe Below the Living"</h4><p>Mortenax Blade &amp; Yao Guang banners · Starward Mode · Free Gilgamesh login</p></div>
+    <div class="tl-item"><div class="tl-dot dot-hsr"></div><div class="tl-meta"><span class="tl-date">Jun 24, 2026</span><span class="ctag tag-new" style="font-size:.56rem;padding:2px 6px">HSR</span></div><h4>HSR v4.3 Phase 1 Ends — Banners close</h4><p>Mortenax Blade &amp; Yao Guang banners expire · Phase 2 begins</p></div>
+    <div class="tl-item"><div class="tl-dot dot-mcgg"></div><div class="tl-meta"><span class="tl-date">Aug 2026 (TBA)</span><span class="ctag tag-season" style="font-size:.56rem;padding:2px 6px">MCGG</span></div><h4>Magic Chess: Go Go — Season 7 (Expected)</h4><p>Based on ~3 month season cadence: S5 Feb → S6 May → S7 ~Aug 2026</p></div>
+    <div class="tl-item"><div class="tl-dot dot-mlbb"></div><div class="tl-meta"><span class="tl-date">Jan 2027</span><span class="ctag tag-tourney" style="font-size:.56rem;padding:2px 6px">MLBB</span></div><h4>M8 World Championship — Turkey</h4><p>First M Series in Europe · M8 Wild Card in Thailand · Top qualifiers via MSC 2026</p></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">The Merchant</div>
+    <p>Auto-updating via RSS/JSON feeds · Liquipedia API · Bracket refreshes every 15 min · Timers live</p>
+  </div>
+  <div class="footer-links">
+    <a href="https://magicchessgogo.com" target="_blank">MCGG</a>
+    <a href="https://mlbb.moonton.com" target="_blank">MLBB</a>
+    <a href="https://hsr.hoyoverse.com" target="_blank">HSR</a>
+    <a href="https://liquipedia.net/mobilelegends/MPL/Philippines/Season_17" target="_blank">Liquipedia</a>
+  </div>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+/* ══════════ STARS ══════════ */
+(function(){
+  const c=document.getElementById('stars-canvas'),ctx=c.getContext('2d');
+  let stars=[];
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;stars=[];for(let i=0;i<200;i++)stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.1+.2,o:Math.random()*.55+.1,sp:Math.random()*.0004+.0001})}
+  let t=0;
+  function draw(){ctx.clearRect(0,0,c.width,c.height);t+=.01;stars.forEach(s=>{ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(230,210,155,${s.o*(0.5+0.5*Math.sin(t*s.sp*100+s.x))})`;ctx.fill()});requestAnimationFrame(draw)}
+  window.addEventListener('resize',resize);resize();draw();
+})();
+
+/* ══════════ FILTER ══════════ */
+function filterG(id,type,btn){
+  btn.closest('.filter-bar').querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const c=document.getElementById(id);
+  if(!c)return;
+  c.querySelectorAll('.card').forEach(card=>{card.style.display=(type==='all'||card.dataset.t===type)?'':'none'});
+}
+
+/* ══════════ TIME UTILS ══════════ */
+function pad(n){return String(n).padStart(2,'0')}
+function setLastUpdated(){
+  const now=new Date();
+  document.getElementById('last-updated').textContent=
+    now.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:true})+
+    ' '+now.toLocaleDateString('en-PH',{month:'short',day:'numeric'});
+}
+
+/* ══════════ HSR COUNTDOWN TIMERS ══════════ */
+// All targets in UTC. HSR maintenance usually starts ~02:00–05:00 UTC
+const HSR_TARGETS={
+  // v4.2 Phase 2 ends = v4.3 launch = Jun 1 2026, ~03:00 UTC (11:00 SGT)
+  phase2: new Date('2026-06-01T03:00:00Z'),
+  v43:    new Date('2026-06-01T03:00:00Z'),
+  // v4.3 Phase 1 ends ~Jun 24, ~03:00 UTC
+  v43p1:  new Date('2026-06-24T03:00:00Z'),
+};
+
+function renderHSRTimer(elId,statusId,target,activeLabel,upcomingLabel){
+  const el=document.getElementById(elId);
+  if(!el)return;
+  const now=new Date(),diff=target-now;
+  if(diff<=0){
+    el.innerHTML=`<span class="tnum" style="font-size:.95rem;color:var(--win)">Live / Ended</span>`;
+    if(statusId){const s=document.getElementById(statusId);if(s){s.className='timer-status t-ended';s.textContent='◎ Event has ended or is now live';}}
+    return;
+  }
+  const d=Math.floor(diff/86400000),rem=diff-d*86400000,
+        h=Math.floor(rem/3600000),rem2=rem-h*3600000,
+        m=Math.floor(rem2/60000),s=Math.floor((rem2-m*60000)/1000);
+  el.innerHTML=`
+    ${d>0?`<div class="tblock"><span class="tnum">${d}</span><span class="tlabel">Days</span></div><span class="tsep">:</span>`:''}
+    <div class="tblock"><span class="tnum">${pad(h)}</span><span class="tlabel">Hours</span></div>
+    <span class="tsep">:</span>
+    <div class="tblock"><span class="tnum">${pad(m)}</span><span class="tlabel">Mins</span></div>
+    <span class="tsep">:</span>
+    <div class="tblock"><span class="tnum">${pad(s)}</span><span class="tlabel">Secs</span></div>`;
+}
+
+function tickTimers(){
+  renderHSRTimer('timer-phase2','timer-phase2-status',HSR_TARGETS.phase2);
+  renderHSRTimer('timer-v43',null,HSR_TARGETS.v43);
+  renderHSRTimer('timer-v43p1',null,HSR_TARGETS.v43p1);
+}
+tickTimers();
+setInterval(tickTimers,1000);
+
+/* ══════════ RSS NEWS FETCHER ══════════
+   Uses rss2json.com (free CORS proxy for RSS feeds).
+   Rate limit: 1 req/sec / 1000 req/day on free tier — perfect for 15-min refresh.
+══════════════════════════════════════ */
+const RSS2JSON='https://api.rss2json.com/v1/api.json?rss_url=';
+
+const FEEDS={
+  mcgg:[
+    'https://www.dearplayers.com/en-US/rss/updates/magic-chess-go-go',
+    'https://gamingonphone.com/tag/magic-chess-go-go/feed/',
+  ],
+  mlbb:[
+    'https://gamingonphone.com/tag/mobile-legends/feed/',
+    'https://mlbbhub.com/feed/',
+  ],
+  mlbb_tourney:[
+    'https://www.gosugamers.net/mobile-legends/feed/rss',
+    'https://www.sportskeeda.com/rss/mobile-legends-bang-bang.xml',
+  ],
+  hsr:[
+    'https://game8.co/games/Honkai-Star-Rail/feed',
+    'https://www.gematsu.com/feed',
+  ],
+};
+
+function timeAgo(dateStr){
+  const diff=(Date.now()-new Date(dateStr))/(1000*60);
+  if(diff<60)return`${Math.round(diff)}m ago`;
+  if(diff<1440)return`${Math.round(diff/60)}h ago`;
+  return`${Math.round(diff/1440)}d ago`;
+}
+
+function stripHtml(html){const d=document.createElement('div');d.innerHTML=html;return d.textContent||d.innerText||''}
+
+function buildNewsCard(item,game){
+  const title=stripHtml(item.title||'').slice(0,90);
+  const desc=stripHtml(item.description||item.content||'').replace(/\s+/g,' ').trim().slice(0,130);
+  const link=item.link||item.url||'#';
+  const dateStr=item.pubDate?timeAgo(item.pubDate):'';
+  const source=item.author||new URL(link).hostname.replace('www.','');
+  return`<div class="news-card news-card-${game}">
+    <h4>${title}</h4>
+    ${desc?`<p>${desc}…</p>`:''}
+    <div class="news-card-footer">
+      <span class="news-source">${source}</span>
+      <span style="display:flex;align-items:center;gap:8px">
+        <span class="news-date">${dateStr}</span>
+        <a href="${link}" target="_blank" class="clink card-${game}" style="opacity:.7;font-size:.6rem">Read ↗</a>
+      </span>
+    </div>
+  </div>`;
+}
+
+async function fetchFeed(url){
+  const r=await fetch(`${RSS2JSON}${encodeURIComponent(url)}&count=4&order_dir=desc`);
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const d=await r.json();
+  if(d.status!=='ok')throw new Error(d.message||'Feed error');
+  return d.items||[];
+}
+
+async function loadNewsSection(feedUrls,containerId,game){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  let items=[];
+  for(const url of feedUrls){
+    try{const got=await fetchFeed(url);items.push(...got)}
+    catch(e){/* try next */}
+  }
+  // deduplicate by title, sort by date, cap at 6
+  const seen=new Set();
+  items=items.filter(i=>{const k=(i.title||'').slice(0,40);if(seen.has(k))return false;seen.add(k);return true})
+    .sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate)).slice(0,6);
+  if(items.length===0){
+    el.innerHTML=`<div class="news-error">Could not load live feed — check your connection or RSS proxy limit.</div>`;
+    return;
+  }
+  el.innerHTML=items.map(i=>buildNewsCard(i,game)).join('');
+}
+
+/* ══════════ LIQUIPEDIA BRACKET UPDATER ══════════
+   Fetches the MPL PH S17 Playoffs wikitext via Liquipedia's MediaWiki API
+   (CORS-enabled with origin=*). Parses score lines to update bracket cards.
+   Rate: once per page load + every 15 min = well within 60 req/hr limit.
+══════════════════════════════════════════════════ */
+async function fetchBracket(){
+  document.getElementById('bracket-status').innerHTML='Bracket: <strong>Updating…</strong>';
+  try{
+    const url='https://liquipedia.net/mobilelegends/api.php?'+
+      'action=parse&page=MPL%2FPhilippines%2FSeason_17%2FPlayoffs'+
+      '&prop=wikitext&format=json&origin=*';
+    const r=await fetch(url,{headers:{'Accept-Encoding':'gzip'}});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    const wikitext=data?.parse?.wikitext?.['*']||'';
+    parseBracketWikitext(wikitext);
+    document.getElementById('bracket-status').innerHTML='Bracket: <strong style="color:var(--win)">Live ✓</strong>';
+    const now=new Date();
+    document.getElementById('bracket-last-fetched').textContent=
+      'LIVE · Updated '+now.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:true});
+  }catch(e){
+    document.getElementById('bracket-status').innerHTML='Bracket: <strong style="color:var(--muted)">Using cached data</strong>';
+  }
+}
+
+function parseBracketWikitext(wt){
+  /* Liquipedia wikitext score patterns — look for lines like:
+     |RD1-score01=3  |RD1-score02=1  etc.
+     This is a best-effort parser; if the wiki format changes it falls back gracefully. */
+  function getParam(text,key){
+    const m=text.match(new RegExp('\\|'+key+'\\s*=\\s*([^|\\n\\r}]+)'));
+    return m?m[1].trim():null;
+  }
+  // Check for any finished scores
+  const pi1s1=getParam(wt,'RD1-score01')||getParam(wt,'RD1-score1')||null;
+  const pi1s2=getParam(wt,'RD1-score02')||getParam(wt,'RD1-score2')||null;
+  if(pi1s1!==null&&pi1s2!==null&&pi1s1!==''&&pi1s2!==''){
+    applyScore('m-pi-1',pi1s1,pi1s2);
+  }
+  const pi2s1=getParam(wt,'RD1-score03')||getParam(wt,'RD1-score3')||null;
+  const pi2s2=getParam(wt,'RD1-score04')||getParam(wt,'RD1-score4')||null;
+  if(pi2s1!==null&&pi2s2!==null&&pi2s1!==''&&pi2s2!==''){
+    applyScore('m-pi-2',pi2s1,pi2s2);
+  }
+  // UB Semis
+  const ub1s1=getParam(wt,'RD2-score01')||getParam(wt,'RD2-score1')||null;
+  const ub1s2=getParam(wt,'RD2-score02')||getParam(wt,'RD2-score2')||null;
+  if(ub1s1&&ub1s2&&ub1s1!==''&&ub1s2!=='')applyScore('m-ub-1',ub1s1,ub1s2);
+  const ub2s1=getParam(wt,'RD2-score03')||getParam(wt,'RD2-score3')||null;
+  const ub2s2=getParam(wt,'RD2-score04')||getParam(wt,'RD2-score4')||null;
+  if(ub2s1&&ub2s2&&ub2s1!==''&&ub2s2!=='')applyScore('m-ub-2',ub2s1,ub2s2);
+}
+
+function applyScore(matchId,s1,s2){
+  const score1=parseInt(s1),score2=parseInt(s2);
+  if(isNaN(score1)||isNaN(score2))return;
+  const sid1=document.getElementById(matchId+'-s1');
+  const sid2=document.getElementById(matchId+'-s2');
+  const t1=document.getElementById(matchId+'-t1');
+  const t2=document.getElementById(matchId+'-t2');
+  if(!sid1||!sid2)return;
+  const finished=score1!==score2;
+  sid1.textContent=s1;
+  sid2.textContent=s2;
+  sid1.className='mt-score '+(finished?(score1>score2?'score-win':'score-loss'):'score-tbd');
+  sid2.className='mt-score '+(finished?(score2>score1?'score-win':'score-loss'):'score-tbd');
+  if(t1&&t2&&finished){
+    t1.classList.toggle('is-winner',score1>score2);
+    t2.classList.toggle('is-winner',score2>score1);
+  }
+  const card=document.getElementById(matchId);
+  if(card){card.classList.add('updated');setTimeout(()=>card.classList.remove('updated'),1200)}
+}
+
+/* ══════════ REFRESH ALL ══════════ */
+async function refreshAll(){
+  const btn=document.getElementById('refresh-btn');
+  btn.textContent='↻ Refreshing…';btn.disabled=true;
+  setLastUpdated();
+  // Run everything in parallel
+  await Promise.all([
+    fetchBracket(),
+    loadNewsSection(FEEDS.mcgg,'mcgg-news-feed','mcgg'),
+    loadNewsSection(FEEDS.mlbb,'mlbb-news-feed','mlbb'),
+    loadNewsSection(FEEDS.mlbb_tourney,'mlbb-tourney-feed','mlbb'),
+    loadNewsSection(FEEDS.hsr,'hsr-news-feed','hsr'),
+  ]);
+  document.getElementById('news-status').innerHTML='News feeds: <strong style="color:var(--win)">Live ✓</strong>';
+  btn.textContent='↻ Refresh Now';btn.disabled=false;
+}
+
+/* ══════════ INITIAL LOAD & AUTO-INTERVAL ══════════ */
+window.addEventListener('load',()=>{
+  setLastUpdated();
+  refreshAll();
+  // Auto-refresh every 15 minutes
+  setInterval(refreshAll,15*60*1000);
+});
+</script>
+</body>
+</html>

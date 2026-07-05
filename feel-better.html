@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feel Better 💗</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<style>
+  :root{
+    --pink-deep:#e88fa8;
+    --pink-mid:#f7b8cd;
+    --pink-light:#fde3ec;
+    --pink-cream:#fff6f8;
+    --leaf:#a8d5ba;
+    --ink:#6b4a52;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    height:100%;
+    background:linear-gradient(180deg, var(--pink-cream) 0%, var(--pink-light) 45%, var(--pink-mid) 100%);
+    font-family:'Quicksand', sans-serif;
+    color:var(--ink);
+    overflow-x:hidden;
+    position:relative;
+  }
+  .sky{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    overflow:hidden;
+  }
+  .petal{
+    position:absolute;
+    top:-40px;
+    font-size:20px;
+    animation:fall linear infinite;
+    opacity:0.85;
+    user-select:none;
+  }
+  @keyframes fall{
+    0%{ transform:translateY(0) translateX(0) rotate(0deg); }
+    100%{ transform:translateY(110vh) translateX(var(--drift, 40px)) rotate(360deg); }
+  }
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width:640px;
+    margin:0 auto;
+    padding:48px 24px 90px;
+    text-align:center;
+  }
+  .eyebrow{
+    font-size:13px;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--pink-deep);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Caveat', cursive;
+    font-size:clamp(52px, 12vw, 88px);
+    line-height:1;
+    margin:0 0 6px;
+    color:#d46b8c;
+    text-shadow:2px 2px 0 rgba(255,255,255,0.6);
+  }
+  .sub{
+    font-size:17px;
+    line-height:1.6;
+    max-width:440px;
+    margin:0 auto 34px;
+    color:#8a5c66;
+  }
+  /* --- Puppy scene --- */
+  .stage{
+    position:relative;
+    width:280px;
+    height:280px;
+    margin:0 auto 20px;
+  }
+  .stage svg{
+    width:100%;
+    height:100%;
+    animation:bob 3.2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:translateY(0) rotate(-1.5deg); }
+    50%{ transform:translateY(-10px) rotate(1.5deg); }
+  }
+  .sparkle{
+    position:absolute;
+    font-size:22px;
+    animation:twinkle 2.4s ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{ opacity:0.2; transform:scale(0.8); }
+    50%{ opacity:1; transform:scale(1.15); }
+  }
+  .note-card{
+    background:rgba(255,255,255,0.65);
+    backdrop-filter:blur(6px);
+    border:1.5px solid rgba(228,140,168,0.35);
+    border-radius:22px;
+    padding:26px 28px;
+    margin:0 auto 30px;
+    max-width:440px;
+    box-shadow:0 12px 30px rgba(214,110,150,0.15);
+  }
+  .note-card p{
+    margin:0;
+    font-size:16.5px;
+    line-height:1.7;
+    color:#7a4d57;
+  }
+  .signature{
+    font-family:'Caveat', cursive;
+    font-size:26px;
+    color:var(--pink-deep);
+    margin-top:10px;
+    display:block;
+  }
+  /* --- Music player --- */
+  .player{
+    display:inline-flex;
+    align-items:center;
+    gap:14px;
+    background:#fff;
+    border-radius:60px;
+    padding:12px 22px 12px 12px;
+    box-shadow:0 10px 24px rgba(214,110,150,0.25);
+    border:1.5px solid var(--pink-mid);
+  }
+  .play-btn{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    border:none;
+    background:linear-gradient(135deg, var(--pink-deep), #d46b8c);
+    color:white;
+    font-size:20px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform 0.15s ease;
+    flex-shrink:0;
+  }
+  .play-btn:hover{ transform:scale(1.06); }
+  .play-btn:active{ transform:scale(0.96); }
+  .player-text{
+    text-align:left;
+  }
+  .player-text .title{
+    font-weight:700;
+    font-size:14px;
+    color:#a34d6a;
+  }
+  .player-text .sub2{
+    font-size:12px;
+    color:#c48b9a;
+  }
+  .bars{
+    display:flex;
+    align-items:flex-end;
+    gap:3px;
+    height:18px;
+    margin-left:4px;
+  }
+  .bars span{
+    width:3px;
+    background:var(--pink-deep);
+    border-radius:2px;
+    animation:eq 1s ease-in-out infinite;
+    opacity:0.35;
+  }
+  .bars.playing span{ opacity:1; }
+  .bars span:nth-child(1){ animation-delay:0s; }
+  .bars span:nth-child(2){ animation-delay:0.15s; }
+  .bars span:nth-child(3){ animation-delay:0.3s; }
+  @keyframes eq{
+    0%,100%{ height:4px; }
+    50%{ height:16px; }
+  }
+  .footer-note{
+    margin-top:38px;
+    font-size:13px;
+    color:#c48b9a;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .stage svg, .petal, .sparkle{ animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sky" id="sky"></div>
+
+<div class="wrap">
+  <div class="eyebrow">a little something for you</div>
+  <h1>Feel Better Soon 💗</h1>
+  <p class="sub">Sending you the softest, pinkest hug from far away. Rest up, sip something warm, and let today be easy on you.</p>
+
+  <div class="stage">
+    <div class="sparkle" style="top:5%; left:8%;">✨</div>
+    <div class="sparkle" style="top:12%; right:6%; animation-delay:0.8s;">✨</div>
+    <div class="sparkle" style="bottom:18%; left:4%; animation-delay:1.4s;">💗</div>
+    <svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <!-- ground shadow -->
+      <ellipse cx="160" cy="300" rx="110" ry="14" fill="#e88fa8" opacity="0.2"/>
+
+      <!-- gerbera bouquet, sitting on the ground, cat perched behind/on it -->
+      <!-- wrapping -->
+      <path d="M100 295 L155 190 L225 200 L245 290 Q170 315 100 295 Z" stroke="#6b4a52" stroke-width="2" fill="#f6e9d8" opacity="0.95"/>
+      <path d="M115 285 L165 205" stroke="#c9ab86" stroke-width="1.5" opacity="0.6"/>
+      <path d="M140 292 L185 210" stroke="#c9ab86" stroke-width="1.5" opacity="0.6"/>
+      <path d="M175 296 L210 218" stroke="#c9ab86" stroke-width="1.5" opacity="0.6"/>
+      <!-- twine -->
+      <path d="M108 275 Q172 258 238 268" stroke="#c9ab86" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+      <!-- gerbera stems poking up -->
+      <path d="M150 205 Q148 175 152 150" stroke="#6fa87f" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M180 198 Q182 165 178 138" stroke="#8fbf9f" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M205 205 Q210 175 218 152" stroke="#6fa87f" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- leaves -->
+      <path d="M158 210 Q140 202 132 185" stroke="#8fbf9f" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M215 210 Q232 200 238 182" stroke="#6fa87f" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+      <!-- gerbera 1 - pink, left -->
+      <g transform="translate(150,132)">
+        <g stroke="#d84f7c" stroke-width="2" fill="#f78bb0">
+          <ellipse cx="0" cy="-18" rx="6" ry="15"/>
+          <ellipse cx="0" cy="18" rx="6" ry="15"/>
+          <ellipse cx="-18" cy="0" rx="15" ry="6"/>
+          <ellipse cx="18" cy="0" rx="15" ry="6"/>
+          <ellipse cx="-13" cy="-13" rx="14" ry="6" transform="rotate(45 -13 -13)"/>
+          <ellipse cx="13" cy="13" rx="14" ry="6" transform="rotate(45 13 13)"/>
+          <ellipse cx="-13" cy="13" rx="14" ry="6" transform="rotate(-45 -13 13)"/>
+          <ellipse cx="13" cy="-13" rx="14" ry="6" transform="rotate(-45 13 -13)"/>
+        </g>
+        <circle cx="0" cy="0" r="8" fill="#8a4a3a"/>
+      </g>
+
+      <!-- gerbera 2 - orange, middle, largest -->
+      <g transform="translate(178,118)">
+        <g stroke="#e8672c" stroke-width="2" fill="#ff9752">
+          <ellipse cx="0" cy="-22" rx="7" ry="18"/>
+          <ellipse cx="0" cy="22" rx="7" ry="18"/>
+          <ellipse cx="-22" cy="0" rx="18" ry="7"/>
+          <ellipse cx="22" cy="0" rx="18" ry="7"/>
+          <ellipse cx="-15" cy="-15" rx="17" ry="7" transform="rotate(45 -15 -15)"/>
+          <ellipse cx="15" cy="15" rx="17" ry="7" transform="rotate(45 15 15)"/>
+          <ellipse cx="-15" cy="15" rx="17" ry="7" transform="rotate(-45 -15 15)"/>
+          <ellipse cx="15" cy="-15" rx="17" ry="7" transform="rotate(-45 15 -15)"/>
+        </g>
+        <circle cx="0" cy="0" r="10" fill="#6b4a52"/>
+      </g>
+
+      <!-- gerbera 3 - yellow, right -->
+      <g transform="translate(216,136)">
+        <g stroke="#e0ac1c" stroke-width="2" fill="#ffd257">
+          <ellipse cx="0" cy="-16" rx="5" ry="13"/>
+          <ellipse cx="0" cy="16" rx="5" ry="13"/>
+          <ellipse cx="-16" cy="0" rx="13" ry="5"/>
+          <ellipse cx="16" cy="0" rx="13" ry="5"/>
+          <ellipse cx="-11" cy="-11" rx="12" ry="5" transform="rotate(45 -11 -11)"/>
+          <ellipse cx="11" cy="11" rx="12" ry="5" transform="rotate(45 11 11)"/>
+        </g>
+        <circle cx="0" cy="0" r="7" fill="#6b4a52"/>
+      </g>
+
+      <!-- ORANGE PERSIAN CAT, sitting behind the bouquet -->
+      <!-- Persian traits: round flat face, short snub nose, small ears set low/wide, long thick fur, stocky low-slung body, thick ruff -->
+
+      <!-- tail, long and fluffy, curled around -->
+      <path d="M242 275 Q275 270 278 235 Q280 210 260 200" stroke="#c9702f" stroke-width="18" fill="none" stroke-linecap="round" opacity="0.95"/>
+      <path d="M242 275 Q275 270 278 235 Q280 210 260 200" stroke="#a85a24" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.3"/>
+
+      <!-- body: rounded, stocky, low to ground, thick furry silhouette -->
+      <path d="M78 285 Q68 245 95 220 Q120 198 165 202 Q210 205 225 235 Q235 258 220 282 Q195 300 150 298 Q105 298 78 285 Z"
+            fill="#e8934a" stroke="#a85a24" stroke-width="2.5"/>
+      <!-- fur texture strokes on body -->
+      <path d="M95 230 Q90 240 92 250 M110 218 Q104 230 106 242 M130 210 Q126 222 128 234 M150 206 Q147 218 149 230" stroke="#c9702f" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/>
+      <path d="M180 212 Q178 224 182 236 M200 222 Q200 234 204 244 M212 240 Q214 252 210 262" stroke="#c9702f" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/>
+
+      <!-- big fluffy ruff/mane around neck and chest -->
+      <path d="M85 235 Q75 250 82 268 Q90 285 108 288 Q100 265 105 245 Q92 240 85 235 Z" fill="#f2a862" stroke="#a85a24" stroke-width="2"/>
+      <path d="M135 208 Q120 220 118 240 Q116 260 128 275 Q138 250 148 232 Q142 216 135 208 Z" fill="#f2a862" stroke="#a85a24" stroke-width="2"/>
+      <path d="M175 205 Q188 214 194 232 Q200 250 190 268 Q178 246 168 228 Q170 214 175 205 Z" fill="#f2a862" stroke="#a85a24" stroke-width="2"/>
+      <path d="M45 265 Q80 300 100 250 Q60 265 45 265 Z" fill="#f2a862" opacity="0" />
+
+      <!-- front paws, short and stocky (Persian legs are short) -->
+      <ellipse cx="112" cy="292" rx="16" ry="10" fill="#e8934a" stroke="#a85a24" stroke-width="2"/>
+      <ellipse cx="160" cy="296" rx="16" ry="10" fill="#e8934a" stroke="#a85a24" stroke-width="2"/>
+
+      <!-- head: large, round, flat-faced -->
+      <circle cx="130" cy="150" r="62" fill="#eb9c52" stroke="#a85a24" stroke-width="2.5"/>
+
+      <!-- ears: small, rounded, set wide and low (Persian trait) -->
+      <path d="M78 118 Q65 90 92 88 Q100 112 98 130 Z" fill="#e8934a" stroke="#a85a24" stroke-width="2.5"/>
+      <path d="M182 118 Q198 88 172 86 Q162 110 166 130 Z" fill="#e8934a" stroke="#a85a24" stroke-width="2.5"/>
+      <path d="M85 112 Q80 100 92 96" fill="#f6c9a0" opacity="0.8"/>
+      <path d="M175 112 Q180 100 168 96" fill="#f6c9a0" opacity="0.8"/>
+
+      <!-- flat face fur fluff around cheeks -->
+      <path d="M70 150 Q55 165 68 185 Q78 195 92 190" fill="#f2a862" stroke="#a85a24" stroke-width="2"/>
+      <path d="M190 150 Q205 165 192 185 Q182 195 168 190" fill="#f2a862" stroke="#a85a24" stroke-width="2"/>
+
+      <!-- big round copper eyes, wide-set (Persian trait) -->
+      <ellipse cx="105" cy="150" rx="11" ry="12" fill="#d9832e"/>
+      <ellipse cx="155" cy="150" rx="11" ry="12" fill="#d9832e"/>
+      <ellipse cx="105" cy="150" rx="6" ry="7" fill="#3a2418"/>
+      <ellipse cx="155" cy="150" rx="6" ry="7" fill="#3a2418"/>
+      <circle cx="102" cy="146" r="2" fill="#fff"/>
+      <circle cx="152" cy="146" r="2" fill="#fff"/>
+
+      <!-- flat, snub nose set low on a short muzzle (key Persian trait) -->
+      <path d="M118 168 Q130 162 142 168 Q142 178 130 182 Q118 178 118 168 Z" fill="#c9622e" stroke="#a85a24" stroke-width="1.5"/>
+      <path d="M130 182 L130 190" stroke="#a85a24" stroke-width="2" stroke-linecap="round"/>
+      <path d="M130 190 Q120 196 112 192" stroke="#a85a24" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M130 190 Q140 196 148 192" stroke="#a85a24" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+      <!-- whiskers -->
+      <path d="M95 172 Q65 168 50 172 M95 178 Q65 180 48 186" stroke="#a85a24" stroke-width="1.2" opacity="0.6"/>
+      <path d="M165 172 Q195 168 210 172 M165 178 Q195 180 212 186" stroke="#a85a24" stroke-width="1.2" opacity="0.6"/>
+
+      <!-- sparse forehead fur tufts -->
+      <path d="M105 100 Q110 88 118 84 M140 84 Q148 88 152 100" stroke="#a85a24" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <div class="note-card">
+    <p>Whatever's going on, you don't have to carry it today. Just rest, drink your water, and let yourself be a little bit taken care of.</p>
+    <span class="signature">get well soon, my love 🌷</span>
+  </div>
+
+  <div class="player">
+    <button class="play-btn" id="playBtn" aria-label="Play music">▶</button>
+    <div class="player-text">
+      <div class="title">cozy lofi, just for you</div>
+      <div class="sub2">tap to play</div>
+    </div>
+    <div class="bars" id="bars"><span></span><span></span><span></span></div>
+  </div>
+
+  <div class="footer-note">made with love 💌</div>
+</div>
+
+<script>
+// ---- Falling petals ----
+const sky = document.getElementById('sky');
+const petals = ['🌸','🌷','💮','🌺','🩷'];
+for(let i=0;i<22;i++){
+  const p = document.createElement('div');
+  p.className = 'petal';
+  p.textContent = petals[Math.floor(Math.random()*petals.length)];
+  p.style.left = Math.random()*100 + 'vw';
+  p.style.fontSize = (14 + Math.random()*14) + 'px';
+  p.style.setProperty('--drift', (Math.random()*80 - 40) + 'px');
+  p.style.animationDuration = (8 + Math.random()*10) + 's';
+  p.style.animationDelay = (Math.random()*10) + 's';
+  sky.appendChild(p);
+}
+
+// ---- Gentle generated lofi loop using Tone.js ----
+let playing = false;
+let started = false;
+let parts = [];
+
+function buildLofi(){
+  const reverb = new Tone.Reverb({decay:4, wet:0.35}).toDestination();
+  const filter = new Tone.Filter(1200, "lowpass").connect(reverb);
+
+  const piano = new Tone.PolySynth(Tone.FMSynth, {
+    harmonicity: 1.5,
+    modulationIndex: 2,
+    envelope:{attack:0.02, decay:0.3, sustain:0.4, release:1.2},
+    volume:-10
+  }).connect(filter);
+
+  const bass = new Tone.MonoSynth({
+    oscillator:{type:"sine"},
+    envelope:{attack:0.05, decay:0.2, sustain:0.6, release:1},
+    volume:-14
+  }).connect(filter);
+
+  // soft vinyl-crackle-ish hats via noise, very quiet
+  const hat = new Tone.NoiseSynth({
+    noise:{type:"pink"},
+    envelope:{attack:0.001, decay:0.04, sustain:0}
+  }).connect(reverb);
+  hat.volume.value = -28;
+
+  const chords = [
+    ["C4","E4","G4","B4"],
+    ["A3","C4","E4","G4"],
+    ["F3","A3","C4","E4"],
+    ["G3","B3","D4","F4"]
+  ];
+  const bassNotes = ["C2","A1","F1","G1"];
+
+  const chordPart = new Tone.Sequence((time, i) => {
+    piano.triggerAttackRelease(chords[i], "2n", time);
+    bass.triggerAttackRelease(bassNotes[i], "2n", time);
+  }, [0,1,2,3], "2n");
+
+  const hatPart = new Tone.Loop((time) => {
+    if(Math.random() > 0.5) hat.triggerAttackRelease("16n", time);
+  }, "8n");
+
+  Tone.Transport.bpm.value = 68;
+  parts = [chordPart, hatPart];
+  return parts;
+}
+
+document.getElementById('playBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('playBtn');
+  const bars = document.getElementById('bars');
+  await Tone.start();
+
+  if(!started){
+    buildLofi().forEach(p => p.start(0));
+    Tone.Transport.start();
+    started = true;
+    playing = true;
+  } else {
+    playing = !playing;
+    if(playing){ Tone.Transport.start(); }
+    else{ Tone.Transport.pause(); }
+  }
+
+  btn.textContent = playing ? "❚❚" : "▶";
+  bars.classList.toggle('playing', playing);
+});
+</script>
+
+</body>
+</html>

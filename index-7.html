@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Differential Calculus Rules</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-hover: #1c2128;
+      --border: #30363d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      --accent: #58a6ff;
+      --accent-dim: rgba(88, 166, 255, 0.15);
+      --success: #3fb950;
+      --success-dim: rgba(63, 185, 80, 0.15);
+      --danger: #f85149;
+      --danger-dim: rgba(248, 81, 73, 0.15);
+      --amber: #d29922;
+      --amber-dim: rgba(210, 153, 34, 0.15);
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+      --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    sup {
+      font-size: 0.68em;
+      line-height: 0;
+      position: relative;
+      top: -0.5em;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      position: relative;
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+      border-color: var(--text-muted);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: 500;
+    }
+
+    .tab-btn.done::after {
+      content: "✓";
+      margin-left: 6px;
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .tab-btn.active.done::after {
+      color: #fff;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .formula-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin: 12px 0;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 20px;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+    }
+
+    .description {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-top: 8px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-body {
+      flex: 1;
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    .step-body strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .example-func {
+      font-size: 22px;
+      text-align: center;
+      margin: 8px 0 16px;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+
+    .reveal-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+
+    .reveal-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .hidden { display: none !important; }
+
+    .practice-count {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: -6px;
+      margin-bottom: 12px;
+    }
+
+    .practice-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 16px;
+      margin-top: 10px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .practice-input:focus { border-color: var(--accent); }
+
+    .practice-input::placeholder { color: var(--text-muted); }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .check-btn, .next-btn {
+      padding: 8px 18px;
+      border-radius: var(--radius-md);
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 500;
+      transition: opacity 0.15s ease;
+    }
+
+    .next-btn {
+      background: var(--success);
+    }
+
+    .check-btn:hover, .next-btn:hover { opacity: 0.85; }
+
+    .check-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .hint-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+      padding: 0;
+    }
+
+    .hint-btn:hover { color: var(--text-secondary); }
+
+    .hint-text {
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: none;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .feedback.correct {
+      background: var(--success-dim);
+      color: var(--success);
+      display: block;
+    }
+
+    .feedback.wrong {
+      background: var(--danger-dim);
+      color: var(--danger);
+      display: block;
+    }
+
+    .feedback.done {
+      background: var(--accent-dim);
+      color: var(--accent);
+      display: block;
+    }
+
+    .error-msg {
+      padding: 16px;
+      background: var(--danger-dim);
+      color: var(--danger);
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+      margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 20px 16px; }
+      header h1 { font-size: 24px; }
+      .formula-box { font-size: 16px; padding: 16px; }
+      .example-func { font-size: 18px; }
+      .card { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Differential Calculus Rules</h1>
+      <p>Learn, practice, and master the rules of differentiation</p>
+    </header>
+
+    <nav class="tabs" id="tab-bar"></nav>
+    <main id="content-area"></main>
+
+    <footer>
+      Built for GitHub Pages &middot; No external dependencies
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      try {
+        initApp();
+      } catch (e) {
+        console.error(e);
+        document.getElementById("content-area").innerHTML =
+          '<div class="card"><div class="error-msg">Something went wrong loading the content. Please try refreshing the page.</div></div>';
+      }
+    });
+
+    function initApp() {
+      var rules = {
+        power: {
+          name: "Power rule",
+          formula: "d/dx [x^n] = n * x^(n-1)",
+          desc: "When differentiating x raised to a power n, bring the exponent down as a coefficient and subtract 1 from the exponent.",
+          whenToUse: "Use this any time a single variable is raised to a numeric power — plain polynomial terms, roots written as fractional powers (√x = x^(1/2)), and reciprocals written as negative powers (1/x = x^(-1)) all reduce to this rule.",
+          steps: [
+            { text: "Identify the exponent <strong>n</strong> on the variable x." },
+            { text: "Multiply the term by <strong>n</strong> (bring the exponent to the front)." },
+            { text: "Decrease the exponent by <strong>1</strong>." }
+          ],
+          example: { f: "f(x) = x^5", steps: [
+            "The exponent is n = 5",
+            "Bring 5 to the front: 5 * x^5",
+            "Subtract 1 from the exponent: 5 * x^4",
+            "Therefore, f'(x) = 5x^4"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = x^7", a: ["7x^6", "7*x^6", "7x6"], hint: "Bring the 7 down and subtract 1 from the exponent." },
+            { q: "Differentiate f(x) = x^10", a: ["10x^9", "10*x^9", "10x9"], hint: "Same idea, just a bigger exponent: n=10." },
+            { q: "Differentiate f(x) = x^(-2)", a: ["-2x^-3", "-2*x^-3", "-2/x^3", "-2x-3"], hint: "The power rule works on negative exponents too: bring -2 down, subtract 1 to get -3." },
+            { q: "Differentiate f(x) = √x  (write as x^(1/2))", a: ["1/2x^-1/2", "0.5x^-0.5", "x^-1/2/2", "1/(2√x)", "1/(2sqrt(x))"], hint: "√x = x^(1/2). Bring 1/2 down, subtract 1 from the exponent to get -1/2." }
+          ]
+        },
+        constant: {
+          name: "Constant rule",
+          formula: "d/dx [c] = 0",
+          desc: "The derivative of any constant is zero. Constants don't change, so their rate of change is zero.",
+          whenToUse: "Use whenever a term has no variable attached at all — plain numbers, y-intercepts, offset terms, or named constants like π and e sitting by themselves.",
+          steps: [
+            { text: "Recognize that the term is a constant (no x variable)." },
+            { text: "The derivative of any constant is <strong>0</strong>." }
+          ],
+          example: { f: "f(x) = 12", steps: [
+            "12 is a constant - it has no x variable",
+            "The derivative of a constant is always 0",
+            "Therefore, f'(x) = 0"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = -3", a: ["0"], hint: "There is no x variable, so the rate of change is zero." },
+            { q: "Differentiate f(x) = 100", a: ["0"], hint: "Still just a number — no x means no change." },
+            { q: "Differentiate f(x) = π", a: ["0"], hint: "π is a fixed number (≈3.14159), so it's a constant too." },
+            { q: "Differentiate f(x) = e  (Euler's number, standing alone)", a: ["0"], hint: "e ≈ 2.71828 is a constant here — it's not e^x. Don't confuse it with the exponential function." }
+          ]
+        },
+        constant_multiple: {
+          name: "Constant multiple",
+          formula: "d/dx [c * f(x)] = c * f'(x)",
+          desc: "A constant coefficient stays unchanged while you differentiate the function it multiplies.",
+          whenToUse: "Use any time a plain number multiplies a function — a coefficient in front of a polynomial, trig, or exponential term. Pull the constant out front, differentiate what remains, then multiply back in.",
+          steps: [
+            { text: "Identify the constant coefficient <strong>c</strong>." },
+            { text: "Differentiate the function <strong>f(x)</strong> as usual." },
+            { text: "Multiply the result by <strong>c</strong>." }
+          ],
+          example: { f: "f(x) = 4x^3", steps: [
+            "The constant coefficient is c = 4",
+            "Differentiate x^3 using the power rule: 3x^2",
+            "Multiply by 4: 4 * 3x^2 = 12x^2",
+            "Therefore, f'(x) = 12x^2"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = 5x^4", a: ["20x^3", "20*x^3", "20x3"], hint: "Keep the 5, differentiate x^4 to get 4x^3, then multiply: 5 × 4x^3." },
+            { q: "Differentiate f(x) = -3x^6", a: ["-18x^5", "-18*x^5", "-18x5"], hint: "Differentiate x^6 to get 6x^5, then multiply by -3." },
+            { q: "Differentiate f(x) = 7√x  (write as 7x^(1/2))", a: ["3.5x^-1/2", "7/2x^-1/2", "3.5/√x", "3.5/sqrt(x)"], hint: "Differentiate x^(1/2) to get (1/2)x^(-1/2), then multiply by 7." },
+            { q: "Differentiate f(x) = (2/3)x^9", a: ["6x^8", "6*x^8", "6x8"], hint: "Differentiate x^9 to get 9x^8, then multiply by 2/3: (2/3)×9 = 6." }
+          ]
+        },
+        sum: {
+          name: "Sum & difference",
+          formula: "d/dx [f(x) +/- g(x)] = f'(x) +/- g'(x)",
+          desc: "The derivative of a sum or difference is the sum or difference of the derivatives. Differentiate each term separately.",
+          whenToUse: "Use whenever an expression is built out of separate terms added or subtracted — most polynomials and mixed expressions. Split it apart, differentiate term by term, then recombine with the same signs.",
+          steps: [
+            { text: "Break the expression into individual terms." },
+            { text: "Differentiate each term separately using the appropriate rule." },
+            { text: "Combine the results with the same signs (+ or -)." }
+          ],
+          example: { f: "f(x) = 3x^2 + 5x - 7", steps: [
+            "Break into terms: 3x^2, 5x, and -7",
+            "d/dx[3x^2] = 3 * 2x = 6x",
+            "d/dx[5x] = 5 * 1 = 5",
+            "d/dx[-7] = 0",
+            "Therefore, f'(x) = 6x + 5"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = 2x^3 + 4x^2 - x", a: ["6x^2+8x-1", "6x2+8x-1"], hint: "Differentiate each term: 2x^3 → 6x^2, 4x^2 → 8x, -x → -1." },
+            { q: "Differentiate f(x) = x^4 - 6x^2 + 9", a: ["4x^3-12x", "4x3-12x"], hint: "x^4 → 4x^3, -6x^2 → -12x, 9 → 0." },
+            { q: "Differentiate f(x) = 5x^3 + 2x^2 - 7x + 3", a: ["15x^2+4x-7", "15x2+4x-7"], hint: "Differentiate each term separately, then add them back together with their signs." },
+            { q: "Differentiate f(x) = x^5 - 3x^3 + 2x - 8", a: ["5x^4-9x^2+2", "5x4-9x2+2"], hint: "x^5 → 5x^4, -3x^3 → -9x^2, 2x → 2, -8 → 0." }
+          ]
+        },
+        product: {
+          name: "Product rule",
+          formula: "d/dx [f * g] = f' * g + f * g'",
+          desc: "When two functions are multiplied together, the derivative is: derivative of the first times the second, plus the first times derivative of the second.",
+          whenToUse: "Use whenever two functions of x are directly multiplied together and neither can be simplified into a single term first — e.g. a polynomial times a trig function, or x times an exponential. Do not just multiply the two derivatives together.",
+          steps: [
+            { text: "Identify the two functions being multiplied: <strong>f(x)</strong> and <strong>g(x)</strong>." },
+            { text: "Find <strong>f'(x)</strong> and <strong>g'(x)</strong> separately." },
+            { text: "Apply the formula: <strong>f' * g + f * g'</strong>." }
+          ],
+          example: { f: "f(x) = x^2 * e^x", steps: [
+            "Let u = x^2 and v = e^x",
+            "u' = 2x and v' = e^x",
+            "Apply product rule: u'v + uv' = 2x*e^x + x^2*e^x",
+            "Factor: e^x(2x + x^2)",
+            "Therefore, f'(x) = e^x(x^2 + 2x)"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = x^3 * sin(x)", a: ["3x^2*sin(x)+x^3*cos(x)", "3x2sin(x)+x3cos(x)"], hint: "f = x^3, g = sin(x). f' = 3x^2, g' = cos(x). Use f'g + fg'." },
+            { q: "Differentiate f(x) = x^2 * e^x", a: ["2x*e^x+x^2*e^x", "e^x(2x+x^2)", "e^x(x^2+2x)"], hint: "f = x^2, g = e^x. f' = 2x, g' = e^x." },
+            { q: "Differentiate f(x) = (x + 1)(x^2 - 3)", a: ["3x^2+2x-3", "3x2+2x-3"], hint: "f = x+1, g = x^2-3. f' = 1, g' = 2x. Use f'g + fg', then simplify." },
+            { q: "Differentiate f(x) = x^2 * ln(x)", a: ["2x*ln(x)+x", "2xln(x)+x"], hint: "f = x^2, g = ln(x). f' = 2x, g' = 1/x. Note x^2 * (1/x) simplifies to x." }
+          ]
+        },
+        quotient: {
+          name: "Quotient rule",
+          formula: "d/dx [f/g] = (f' * g - f * g') / g^2",
+          desc: "For a function divided by another function: bottom times derivative of top, minus top times derivative of bottom, over bottom squared.",
+          whenToUse: "Use whenever one function of x is divided by another and the fraction can't be simplified first (canceled or split into separate terms). The order in the numerator matters — top's derivative comes first.",
+          steps: [
+            { text: "Identify <strong>f(x)</strong> (top) and <strong>g(x)</strong> (bottom)." },
+            { text: "Find <strong>f'(x)</strong> and <strong>g'(x)</strong>." },
+            { text: "Apply: <strong>(f' * g - f * g') / g^2</strong>." }
+          ],
+          example: { f: "f(x) = x^2 / (x + 1)", steps: [
+            "Top: u = x^2 -> u' = 2x",
+            "Bottom: v = x + 1 -> v' = 1",
+            "Apply formula: (u'v - uv') / v^2 = (2x(x+1) - x^2*1) / (x+1)^2",
+            "Simplify numerator: 2x^2 + 2x - x^2 = x^2 + 2x",
+            "Therefore, f'(x) = (x^2 + 2x) / (x + 1)^2"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = (3x) / (x^2 + 1)", a: ["(3-3x^2)/(x^2+1)^2", "(3-3x2)/(x2+1)2"], hint: "Top: 3x → 3. Bottom: x^2+1 → 2x. Use (f'g - fg')/g^2." },
+            { q: "Differentiate f(x) = x^2 / (x - 2)", a: ["(x^2-4x)/(x-2)^2", "(x2-4x)/(x-2)2"], hint: "Top: x^2 → 2x. Bottom: x-2 → 1. Simplify the numerator after applying the formula." },
+            { q: "Differentiate f(x) = sin(x) / x^2", a: ["(x*cos(x)-2*sin(x))/x^3", "(xcos(x)-2sin(x))/x^3"], hint: "Top: sin(x) → cos(x). Bottom: x^2 → 2x. Simplify by canceling a factor of x." },
+            { q: "Differentiate f(x) = e^x / (x + 1)", a: ["e^x*x/(x+1)^2", "x*e^x/(x+1)^2", "(e^x(x+1)-e^x)/(x+1)^2"], hint: "Top: e^x → e^x. Bottom: x+1 → 1. Factor e^x out of the numerator to simplify." }
+          ]
+        },
+        chain: {
+          name: "Chain rule",
+          formula: "d/dx [f(g(x))] = f'(g(x)) * g'(x)",
+          desc: "For composite functions (a function inside another function): differentiate the outer function, keeping the inner function unchanged, then multiply by the derivative of the inner function.",
+          whenToUse: "Use whenever a function is nested inside another — something raised to a power, inside a trig function, inside an exponential, inside a log. If you can describe the expression as \"a function of a function,\" reach for this rule.",
+          steps: [
+            { text: "Identify the <strong>outer function</strong> f and the <strong>inner function</strong> g." },
+            { text: "Differentiate the outer function <strong>f</strong>, leaving the inner function <strong>g(x)</strong> inside." },
+            { text: "Multiply by the derivative of the inner function <strong>g'(x)</strong>." }
+          ],
+          example: { f: "f(x) = (3x + 2)^5", steps: [
+            "Outer: u^5 -> derivative is 5u^4",
+            "Inner: u = 3x + 2 -> derivative is 3",
+            "Apply chain rule: 5(3x+2)^4 * 3",
+            "Therefore, f'(x) = 15(3x + 2)^4"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = (4x + 1)^5", a: ["20(4x+1)^4", "20*(4x+1)^4"], hint: "Outer: u^5 → 5u^4. Inner: 4x+1 → 4. Multiply: 5(4x+1)^4 × 4." },
+            { q: "Differentiate f(x) = (x^2 + 1)^3", a: ["6x(x^2+1)^2", "6x(x2+1)2"], hint: "Outer: u^3 → 3u^2. Inner: x^2+1 → 2x. Multiply: 3(x^2+1)^2 × 2x." },
+            { q: "Differentiate f(x) = sin(3x^2)", a: ["6x*cos(3x^2)", "6xcos(3x^2)"], hint: "Outer: sin(u) → cos(u). Inner: 3x^2 → 6x. Multiply: cos(3x^2) × 6x." },
+            { q: "Differentiate f(x) = √(x^2 + 4)  (write as (x^2+4)^(1/2))", a: ["x/√(x^2+4)", "x/sqrt(x^2+4)", "x*(x^2+4)^-1/2"], hint: "Outer: u^(1/2) → (1/2)u^(-1/2). Inner: x^2+4 → 2x. Multiply and simplify." }
+          ]
+        },
+        exponential: {
+          name: "Exponential",
+          formula: "d/dx [e^x] = e^x     d/dx [a^x] = a^x * ln(a)",
+          desc: "The exponential function e^x is its own derivative. For other bases a^x, multiply by the natural log of the base.",
+          whenToUse: "Use whenever the variable x sits in the exponent — growth and decay models, RC-circuit charging curves, compound interest. If the exponent itself is a function of x (like 3x or x^2), pair this with the chain rule.",
+          steps: [
+            { text: "If the base is <strong>e</strong>, the derivative is unchanged: e^x." },
+            { text: "If the base is <strong>a</strong>, the derivative is a^x * ln(a)." },
+            { text: "If the exponent is a function of x, also apply the <strong>chain rule</strong>." }
+          ],
+          example: { f: "f(x) = e^(3x)", steps: [
+            "The base is e, so the derivative of e^u is e^u",
+            "The exponent is u = 3x, so u' = 3",
+            "Apply chain rule: e^(3x) * 3",
+            "Therefore, f'(x) = 3e^(3x)"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = 2^x", a: ["2^x*ln(2)", "ln(2)*2^x"], hint: "For a^x, the derivative is a^x × ln(a). Here a = 2." },
+            { q: "Differentiate f(x) = e^(3x)", a: ["3e^(3x)", "3*e^(3x)", "3e^3x"], hint: "Base e stays as e^u. Multiply by the derivative of the exponent, 3." },
+            { q: "Differentiate f(x) = 5^(2x)", a: ["2*5^(2x)*ln(5)", "5^(2x)*2ln(5)"], hint: "Derivative of a^u is a^u × ln(a) × u'. Here a=5, u=2x, u'=2." },
+            { q: "Differentiate f(x) = e^(x^2)", a: ["2x*e^(x^2)", "2xe^(x^2)"], hint: "Base e stays as e^u. Multiply by the derivative of the exponent x^2, which is 2x." }
+          ]
+        },
+        logarithmic: {
+          name: "Logarithmic",
+          formula: "d/dx [ln(x)] = 1/x     d/dx [log_a(x)] = 1/(x * ln(a))",
+          desc: "The derivative of the natural logarithm is 1/x. For other log bases, divide by x * ln(a).",
+          whenToUse: "Use whenever x (or a function of x) appears inside a log or ln. Common in signal-processing math (decibel scales) and whenever you need to \"undo\" an exponential relationship.",
+          steps: [
+            { text: "For <strong>ln(x)</strong>, the derivative is simply <strong>1/x</strong>." },
+            { text: "For <strong>log_a(x)</strong>, the derivative is <strong>1/(x * ln(a))</strong>." },
+            { text: "If the argument is a function of x, apply the <strong>chain rule</strong>." }
+          ],
+          example: { f: "f(x) = ln(x^2 + 1)", steps: [
+            "The outer function is ln(u), derivative is 1/u",
+            "The inner function is u = x^2 + 1, derivative is 2x",
+            "Apply chain rule: (1/(x^2+1)) * 2x",
+            "Therefore, f'(x) = 2x/(x^2 + 1)"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = ln(5x)", a: ["1/x"], hint: "ln(5x) = ln(5) + ln(x), and the constant ln(5) drops out. Or use the chain rule: 1/(5x) × 5 = 1/x." },
+            { q: "Differentiate f(x) = ln(x^2 + 1)", a: ["2x/(x^2+1)", "2x/(x2+1)"], hint: "Outer: ln(u) → 1/u. Inner: x^2+1 → 2x. Multiply." },
+            { q: "Differentiate f(x) = log_2(x)", a: ["1/(x*ln(2))", "1/(xln(2))"], hint: "For log base a, the derivative is 1/(x ln a). Here a = 2." },
+            { q: "Differentiate f(x) = ln(sin(x))", a: ["cos(x)/sin(x)", "cot(x)"], hint: "Outer: ln(u) → 1/u. Inner: sin(x) → cos(x). Multiply, and note the result simplifies to cot(x)." }
+          ]
+        },
+        trig: {
+          name: "Trigonometric",
+          formula: "d/dx[sin x]=cos x     d/dx[cos x]=-sin x     d/dx[tan x]=sec^2(x)",
+          desc: "Memorize the basic trig derivatives. Sine becomes cosine, cosine becomes negative sine, tangent becomes secant squared.",
+          whenToUse: "Use whenever sin, cos, or tan appears directly in the function — oscillations, waves, AC signals, phasors. If the angle itself is a function of x (like 3x or x^2), combine this with the chain rule.",
+          steps: [
+            { text: "<strong>sin(x)</strong> -> cos(x)" },
+            { text: "<strong>cos(x)</strong> -> -sin(x) (note the negative sign!)" },
+            { text: "<strong>tan(x)</strong> -> sec^2(x)" }
+          ],
+          example: { f: "f(x) = sin(2x)", steps: [
+            "The outer function is sin(u), derivative is cos(u)",
+            "The inner function is u = 2x, derivative is 2",
+            "Apply chain rule: cos(2x) * 2",
+            "Therefore, f'(x) = 2cos(2x)"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = cos(3x)", a: ["-3sin(3x)", "-3*sin(3x)"], hint: "cos(u) → -sin(u) × u'. Here u = 3x, so u' = 3." },
+            { q: "Differentiate f(x) = sin(5x)", a: ["5cos(5x)", "5*cos(5x)"], hint: "sin(u) → cos(u) × u'. Here u = 5x, so u' = 5." },
+            { q: "Differentiate f(x) = tan(2x)", a: ["2sec^2(2x)", "2*sec^2(2x)"], hint: "tan(u) → sec^2(u) × u'. Here u = 2x, so u' = 2." },
+            { q: "Differentiate f(x) = x * cos(x)", a: ["cos(x)-x*sin(x)", "cos(x)-xsin(x)"], hint: "This needs the product rule too: f = x, g = cos(x). f' = 1, g' = -sin(x)." }
+          ]
+        }
+      };
+
+      var currentKey = "power";
+      var tabBar = document.getElementById("tab-bar");
+      var contentArea = document.getElementById("content-area");
+
+      // per-rule progress: current problem index + count solved
+      var progress = {};
+      var totalProblems = 0;
+      Object.keys(rules).forEach(function(key) {
+        progress[key] = { index: 0, solved: 0 };
+        totalProblems += rules[key].practice.length;
+      });
+
+      function normalize(s) {
+        return s.toLowerCase()
+          .replace(/\s+/g, "")
+          .replace(/[−–—]/g, "-")
+          .replace(/[()]/g, "")
+          .replace(/\*/g, "")
+          .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, function(m) {
+            return "⁰¹²³⁴⁵⁶⁷⁸⁹".indexOf(m);
+          })
+          .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, function(m) {
+            return "₀₁₂₃₄₅₆₇₈₉".indexOf(m);
+          });
+      }
+
+      // Turns caret notation like x^2 or x^(n-1) into real superscript
+      // markup, so it renders as x² instead of x^2.
+      function supify(str) {
+        return String(str)
+          .replace(/\^\(([^)]+)\)/g, "<sup>$1</sup>")
+          .replace(/\^(-?[A-Za-z0-9]+)/g, "<sup>$1</sup>");
+      }
+
+      function renderTabs() {
+        tabBar.innerHTML = "";
+        var keys = Object.keys(rules);
+        for (var i = 0; i < keys.length; i++) {
+          var key = keys[i];
+          var isDone = progress[key].solved >= rules[key].practice.length;
+          var btn = document.createElement("button");
+          btn.className = "tab-btn" + (key === currentKey ? " active" : "") + (isDone ? " done" : "");
+          btn.textContent = rules[key].name;
+          btn.onclick = (function(k) {
+            return function() {
+              currentKey = k;
+              renderTabs();
+              renderContent();
+            };
+          })(key);
+          tabBar.appendChild(btn);
+        }
+      }
+
+      function renderContent() {
+        var r = rules[currentKey];
+        contentArea.innerHTML = "";
+
+        // Formula card
+        var formulaCard = document.createElement("div");
+        formulaCard.className = "card";
+        formulaCard.innerHTML =
+          '<div class="card-title">Formula</div>' +
+          '<div class="formula-box">' + supify(r.formula) + '</div>' +
+          '<p class="description">' + supify(r.desc) + '</p>' +
+          '<p class="description" style="margin-top:10px;"><strong style="color:var(--text-primary);">When to use it:</strong> ' + supify(r.whenToUse) + '</p>';
+        contentArea.appendChild(formulaCard);
+
+        // Steps card
+        var stepsCard = document.createElement("div");
+        stepsCard.className = "card";
+        var stepsHtml = '<div class="card-title">How to apply</div>';
+        for (var i = 0; i < r.steps.length; i++) {
+          stepsHtml += '<div class="step"><div class="step-num">' + (i+1) + '</div><div class="step-body">' + supify(r.steps[i].text) + '</div></div>';
+        }
+        stepsCard.innerHTML = stepsHtml;
+        contentArea.appendChild(stepsCard);
+
+        // Example card
+        var exCard = document.createElement("div");
+        exCard.className = "card";
+        var exHtml = '<div class="card-title">Worked example</div><div class="example-func">' + supify(r.example.f) + '</div>';
+        exHtml += '<button class="reveal-btn" id="ex-reveal">Show step-by-step solution</button>';
+        exHtml += '<div id="ex-steps" class="hidden" style="margin-top:14px;">';
+        for (var j = 0; j < r.example.steps.length; j++) {
+          exHtml += '<div class="step"><div class="step-num">' + (j+1) + '</div><div class="step-body">' + supify(r.example.steps[j]) + '</div></div>';
+        }
+        exHtml += '</div>';
+        exCard.innerHTML = exHtml;
+        contentArea.appendChild(exCard);
+
+        var exRevealBtn = document.getElementById("ex-reveal");
+        var exSteps = document.getElementById("ex-steps");
+        exRevealBtn.addEventListener("click", function() {
+          exSteps.classList.toggle("hidden");
+          exRevealBtn.textContent = exSteps.classList.contains("hidden")
+            ? "Show step-by-step solution"
+            : "Hide step-by-step solution";
+        });
+
+        // Practice card
+        renderPracticeCard(r);
+      }
+
+      function renderPracticeCard(r) {
+        var total = r.practice.length;
+        var prog = progress[currentKey];
+        var isComplete = prog.solved >= total;
+        var idx = Math.min(prog.index, total - 1);
+        var problem = r.practice[idx];
+
+        var card = document.createElement("div");
+        card.className = "card";
+
+        var headerHtml =
+          '<div class="card-title">Practice problem</div>' +
+          '<div class="practice-count">' + (idx + 1) + ' of ' + total + (isComplete ? ' — all solved 🎉' : '') + '</div>';
+
+        card.innerHTML = headerHtml;
+
+        if (isComplete) {
+          var doneMsg = document.createElement("div");
+          doneMsg.className = "feedback done";
+          doneMsg.textContent = "Nice work — you've solved every practice problem for the " + r.name.toLowerCase() + ". Pick another tab to keep going.";
+          card.appendChild(doneMsg);
+          contentArea.appendChild(card);
+          return;
+        }
+
+        var body = document.createElement("div");
+        body.style.marginTop = "14px";
+        body.innerHTML =
+          '<div class="example-func" style="font-size:17px;text-align:left;">' + supify(problem.q) + '</div>' +
+          '<input type="text" class="practice-input" id="practice-input" placeholder="Type your answer, e.g. 5x⁴" autocomplete="off" spellcheck="false">' +
+          '<div class="btn-row">' +
+            '<button class="check-btn" id="check-btn">Check answer</button>' +
+            '<button class="hint-btn" id="hint-btn">Need a hint?</button>' +
+          '</div>' +
+          '<div class="hint-text" id="hint-text">' + supify(problem.hint) + '</div>' +
+          '<div class="feedback" id="practice-feedback"></div>' +
+          '<div class="btn-row" id="next-row"></div>';
+        card.appendChild(body);
+        contentArea.appendChild(card);
+
+        var input = document.getElementById("practice-input");
+        var checkBtn = document.getElementById("check-btn");
+        var hintBtn = document.getElementById("hint-btn");
+        var hintText = document.getElementById("hint-text");
+        var feedback = document.getElementById("practice-feedback");
+        var nextRow = document.getElementById("next-row");
+
+        hintBtn.addEventListener("click", function() {
+          var showing = hintText.style.display === "block";
+          hintText.style.display = showing ? "none" : "block";
+          hintBtn.textContent = showing ? "Need a hint?" : "Hide hint";
+        });
+
+        function submit() {
+          var raw = input.value.trim();
+          if (!raw) return;
+          var norm = normalize(raw);
+          var acceptable = problem.a.map(normalize);
+          var isCorrect = acceptable.indexOf(norm) !== -1;
+
+          feedback.className = "feedback " + (isCorrect ? "correct" : "wrong");
+          feedback.style.display = "block";
+
+          if (isCorrect) {
+            feedback.textContent = "Correct! Great job.";
+            checkBtn.disabled = true;
+            input.disabled = true;
+
+            if (prog.index === idx) {
+              prog.solved = Math.max(prog.solved, idx + 1);
+            }
+            renderTabs();
+
+            var hasNext = idx + 1 < total;
+            nextRow.innerHTML = "";
+            if (hasNext) {
+              var nextBtn = document.createElement("button");
+              nextBtn.className = "next-btn";
+              nextBtn.textContent = "Next problem →";
+              nextBtn.addEventListener("click", function() {
+                prog.index = idx + 1;
+                renderPracticeCardRefresh(r);
+              });
+              nextRow.appendChild(nextBtn);
+            } else {
+              var doneBtn = document.createElement("div");
+              doneBtn.className = "feedback done";
+              doneBtn.style.marginTop = "4px";
+              doneBtn.textContent = "That's the last problem for this rule — nice work!";
+              nextRow.appendChild(doneBtn);
+            }
+          } else {
+            feedback.textContent = "Not quite — check your signs and exponents, then try again.";
+          }
+        }
+
+        function renderPracticeCardRefresh(r) {
+          // Remove just the practice card and re-render it
+          card.remove();
+          renderPracticeCard(r);
+        }
+
+        checkBtn.addEventListener("click", submit);
+        input.addEventListener("keydown", function(e) {
+          if (e.key === "Enter") submit();
+        });
+      }
+
+      renderTabs();
+      renderContent();
+    }
+  </script>
+</body>
+</html>

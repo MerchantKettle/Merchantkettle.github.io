@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Differential Calculus Rules</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-hover: #1c2128;
+      --border: #30363d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      --accent: #58a6ff;
+      --accent-dim: rgba(88, 166, 255, 0.15);
+      --success: #3fb950;
+      --success-dim: rgba(63, 185, 80, 0.15);
+      --danger: #f85149;
+      --danger-dim: rgba(248, 81, 73, 0.15);
+      --amber: #d29922;
+      --amber-dim: rgba(210, 153, 34, 0.15);
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+      --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    sup {
+      font-size: 0.68em;
+      line-height: 0;
+      position: relative;
+      top: -0.5em;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+
+    .subject-intro {
+      margin-top: 18px;
+      padding: 16px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .references-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-top: 20px;
+    }
+
+    .references-card summary {
+      cursor: pointer;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+      list-style: none;
+    }
+
+    .references-card summary::-webkit-details-marker { display: none; }
+
+    .references-card summary::before {
+      content: "▸ ";
+      color: var(--accent);
+    }
+
+    .references-card[open] summary::before {
+      content: "▾ ";
+    }
+
+    .ref-row {
+      display: flex;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .ref-row:last-child { border-bottom: none; }
+
+    .ref-code {
+      flex-shrink: 0;
+      width: 56px;
+      font-family: var(--font-mono);
+      color: var(--accent);
+      font-size: 12px;
+    }
+
+    .ref-row a { color: var(--accent); }
+
+    .subject-switcher {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .subject-btn {
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+
+    .subject-btn:hover {
+      border-color: var(--text-muted);
+      color: var(--text-primary);
+    }
+
+    .subject-btn.active {
+      background: var(--text-primary);
+      color: var(--bg);
+      border-color: var(--text-primary);
+    }
+
+    .tabs {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: 24px 0;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-group-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .tab-group-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      position: relative;
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+      border-color: var(--text-muted);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: 500;
+    }
+
+    .tab-btn.done::after {
+      content: "✓";
+      margin-left: 6px;
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .tab-btn.active.done::after {
+      color: #fff;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .formula-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin: 12px 0;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 20px;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+    }
+
+    .description {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-top: 8px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-body {
+      flex: 1;
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    .step-body strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .example-func {
+      font-size: 22px;
+      text-align: center;
+      margin: 8px 0 16px;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+
+    .reveal-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+
+    .reveal-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .hidden { display: none !important; }
+
+    .practice-count {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: -6px;
+      margin-bottom: 12px;
+    }
+
+    .practice-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 16px;
+      margin-top: 10px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .practice-input:focus { border-color: var(--accent); }
+
+    .practice-input::placeholder { color: var(--text-muted); }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .check-btn, .next-btn {
+      padding: 8px 18px;
+      border-radius: var(--radius-md);
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 500;
+      transition: opacity 0.15s ease;
+    }
+
+    .next-btn {
+      background: var(--success);
+    }
+
+    .check-btn:hover, .next-btn:hover { opacity: 0.85; }
+
+    .check-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .hint-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+      padding: 0;
+    }
+
+    .hint-btn:hover { color: var(--text-secondary); }
+
+    .hint-text {
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: none;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .feedback.correct {
+      background: var(--success-dim);
+      color: var(--success);
+      display: block;
+    }
+
+    .feedback.wrong {
+      background: var(--danger-dim);
+      color: var(--danger);
+      display: block;
+    }
+
+    .feedback.done {
+      background: var(--accent-dim);
+      color: var(--accent);
+      display: block;
+    }
+
+    .error-msg {
+      padding: 16px;
+      background: var(--danger-dim);
+      color: var(--danger);
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+      margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 20px 16px; }
+      header h1 { font-size: 24px; }
+      .formula-box { font-size: 16px; padding: 16px; }
+      .example-func { font-size: 18px; }
+      .card { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Engineering Course Companion</h1>
+      <p>Learn, practice, and master your course topics</p>
+    </header>
+
+    <div class="subject-switcher" id="subject-switcher"></div>
+    <div class="subject-intro" id="subject-intro"></div>
+    <nav class="tabs" id="tab-bar"></nav>
+    <main id="content-area"></main>
+    <div id="references-section"></div>
+
+    <footer>
+      Built for GitHub Pages &middot; No external dependencies
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      try {
+        initApp();
+      } catch (e) {
+        console.error(e);
+        document.getElementById("content-area").innerHTML =
+          '<div class="card"><div class="error-msg">Something went wrong loading the content. Please try refreshing the page.</div></div>';
+      }
+    });
+
+    function initApp() {
+      var rules = {
+        limits: {
+          name: "Limits",
+          category: "Limits & Continuity",
+          subject: "calculus",
+          formula: "lim [f(x) &plusmn; g(x)] = lim f(x) &plusmn; lim g(x)<br>lim [f(x) &middot; g(x)] = lim f(x) &middot; lim g(x)<br>lim [f(x) / g(x)] = lim f(x) / lim g(x)<br>lim [sin(x)/x] = 1&nbsp;&nbsp;(as x &rarr; 0)",
+          desc: "A limit describes the value a function approaches as x gets closer and closer to some number — without necessarily ever reaching it. The theorems above let you break a complicated limit into simpler pieces: the limit of a sum, product, or quotient is the sum, product, or quotient of the individual limits (as long as you don't divide by a limit of zero).",
+          whenToUse: "Start every limit problem with direct substitution. If that gives a real number, you're done. If it gives an indeterminate form like 0/0 or &infin;/&infin;, factor and cancel, or apply L'H&ocirc;pital's Rule: differentiate the top and bottom separately, then try the limit again. For limits at infinity of a ratio of polynomials, compare the degree of the top and bottom instead of substituting directly.",
+          steps: [
+            { text: "Try <strong>direct substitution</strong> first — plug the value x is approaching straight into the function." },
+            { text: "If you get 0/0 or &infin;/&infin;, the limit is <strong>indeterminate</strong>. Try factoring and canceling common terms, or rationalizing." },
+            { text: "Still stuck? Apply <strong>L'H&ocirc;pital's Rule</strong>: take the derivative of the top and the derivative of the bottom separately, then evaluate the new limit." },
+            { text: "For rational functions as x &rarr; &infin;, compare degrees: top's degree higher &rarr; limit is &infin;; bottom's degree higher &rarr; limit is 0; equal degrees &rarr; limit is the ratio of the leading coefficients." }
+          ],
+          example: { f: "Evaluate lim (x^2-1)/(x-1) as x &rarr; 1", steps: [
+            "Direct substitution gives (1-1)/(1-1) = 0/0 — indeterminate, so factor first",
+            "x^2 - 1 factors as (x-1)(x+1)",
+            "Cancel the common (x-1) factor: (x-1)(x+1)/(x-1) = x+1",
+            "Now substitute x = 1: 1 + 1 = 2",
+            "Therefore, the limit is 2"
+          ]},
+          practice: [
+            { q: "Evaluate lim (x+4)/(x-4) as x &rarr; &infin;", a: ["1"], hint: "Divide every term by the highest power of x (here, x^1). The constants +4 and -4 shrink to 0 as x&rarr;&infin;, leaving x/x." },
+            { q: "Evaluate lim (x^2-4)/(x-2) as x &rarr; 2", a: ["4"], hint: "Direct substitution gives 0/0. Factor x^2-4 as (x-2)(x+2), cancel the (x-2), then substitute x=2." },
+            { q: "Evaluate lim (3x^4-2x^2+7)/(5x^3+x-3) as x &rarr; &infin;", a: ["infinity", "inf", "undefined", "does not exist", "dne"], hint: "Compare degrees: the top is degree 4, the bottom is degree 3. When the top's degree is higher, the ratio grows without bound." },
+            { q: "Evaluate lim sin(3x)/x as x &rarr; 0", a: ["3"], hint: "Rewrite as 3 &middot; [sin(3x)/(3x)]. As x&rarr;0, 3x&rarr;0 too, so sin(3x)/(3x) &rarr; 1, leaving just 3." }
+          ]
+        },
+        derivation: {
+          name: "Derivative Definition",
+          category: "Derivative Basics",
+          subject: "calculus",
+          formula: "f'(x) = lim [f(x+h) - f(x)] / h&nbsp;&nbsp;(as h &rarr; 0)",
+          desc: "This is the formal definition of the derivative — every shortcut rule on this page (power rule, product rule, chain rule, all of them) is really just a proven consequence of this one limit. It measures the slope of the secant line through two nearby points on a curve, then squeezes those points together until the secant becomes the tangent line.",
+          whenToUse: "You won't reach for this in everyday differentiation — the shortcut rules are much faster. But some exam questions specifically ask you to differentiate 'from first principles' or 'using the definition,' which means the power rule isn't an acceptable shortcut — you have to work through this limit by hand.",
+          steps: [
+            { text: "Write <strong>f(x+h)</strong> by substituting (x+h) everywhere x appears in f(x)." },
+            { text: "Form the difference quotient <strong>[f(x+h) - f(x)] / h</strong>, then expand and simplify the numerator." },
+            { text: "Factor an <strong>h</strong> out of the numerator and cancel it with the h in the denominator." },
+            { text: "Take the limit as <strong>h &rarr; 0</strong> — any remaining h terms vanish, leaving f'(x)." }
+          ],
+          example: { f: "Derive f'(x) for f(x) = x^2 using the definition", steps: [
+            "f(x+h) = (x+h)^2 = x^2 + 2xh + h^2",
+            "f(x+h) - f(x) = (x^2 + 2xh + h^2) - x^2 = 2xh + h^2",
+            "Divide by h: (2xh + h^2)/h = 2x + h",
+            "Take the limit as h &rarr; 0: 2x + 0 = 2x",
+            "Therefore, f'(x) = 2x — exactly what the power rule predicts"
+          ]},
+          practice: [
+            { q: "Use the definition of the derivative to find f'(x) for f(x) = 3x + 5", a: ["3"], hint: "f(x+h) = 3(x+h)+5 = 3x+3h+5. Subtract f(x), divide by h — the h's cancel completely before you even take the limit." },
+            { q: "Use the definition of the derivative to find f'(x) for f(x) = x^2 + 4x", a: ["2x+4", "2x + 4"], hint: "Expand f(x+h) = (x+h)^2 + 4(x+h), subtract f(x), divide by h, simplify, then let h&rarr;0." },
+            { q: "Use the definition of the derivative to find f'(x) for f(x) = x^3", a: ["3x^2", "3*x^2"], hint: "Expand (x+h)^3 = x^3+3x^2h+3xh^2+h^3. Subtract x^3, divide by h, then take the limit as h&rarr;0." },
+            { q: "Use the definition of the derivative to find f'(x) for f(x) = 1/x", a: ["-1/x^2", "-1x^-2"], hint: "Combine f(x+h)-f(x) = 1/(x+h) - 1/x into a single fraction: -h / [x(x+h)]. Then divide by h and take the limit." }
+          ]
+        },
+        power: {
+          name: "Power rule",
+          category: "Derivative Basics",
+          subject: "calculus",
+          formula: "d/dx [x^n] = n * x^(n-1)",
+          desc: "When differentiating x raised to a power n, bring the exponent down as a coefficient and subtract 1 from the exponent.",
+          whenToUse: "Use this any time a single variable is raised to a numeric power — plain polynomial terms, roots written as fractional powers (√x = x^(1/2)), and reciprocals written as negative powers (1/x = x^(-1)) all reduce to this rule.",
+          steps: [
+            { text: "Identify the exponent <strong>n</strong> on the variable x." },
+            { text: "Multiply the term by <strong>n</strong> (bring the exponent to the front)." },
+            { text: "Decrease the exponent by <strong>1</strong>." }
+          ],
+          example: { f: "f(x) = x^5", steps: [
+            "The exponent is n = 5",
+            "Bring 5 to the front: 5 * x^5",
+            "Subtract 1 from the exponent: 5 * x^4",
+            "Therefore, f'(x) = 5x^4"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = x^7", a: ["7x^6", "7*x^6", "7x6"], hint: "Bring the 7 down and subtract 1 from the exponent." },
+            { q: "Differentiate f(x) = x^10", a: ["10x^9", "10*x^9", "10x9"], hint: "Same idea, just a bigger exponent: n=10." },
+            { q: "Differentiate f(x) = x^(-2)", a: ["-2x^-3", "-2*x^-3", "-2/x^3", "-2x-3"], hint: "The power rule works on negative exponents too: bring -2 down, subtract 1 to get -3." },
+            { q: "Differentiate f(x) = √x  (write as x^(1/2))", a: ["1/2x^-1/2", "0.5x^-0.5", "x^-1/2/2", "1/(2√x)", "1/(2sqrt(x))"], hint: "√x = x^(1/2). Bring 1/2 down, subtract 1 from the exponent to get -1/2." }
+          ]
+        },
+        constant: {
+          name: "Constant rule",
+          category: "Derivative Basics",
+          subject: "calculus",
+          formula: "d/dx [c] = 0",
+          desc: "The derivative of any constant is zero. Constants don't change, so their rate of change is zero.",
+          whenToUse: "Use whenever a term has no variable attached at all — plain numbers, y-intercepts, offset terms, or named constants like π and e sitting by themselves.",
+          steps: [
+            { text: "Recognize that the term is a constant (no x variable)." },
+            { text: "The derivative of any constant is <strong>0</strong>." }
+          ],
+          example: { f: "f(x) = 12", steps: [
+            "12 is a constant - it has no x variable",
+            "The derivative of a constant is always 0",
+            "Therefore, f'(x) = 0"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = -3", a: ["0"], hint: "There is no x variable, so the rate of change is zero." },
+            { q: "Differentiate f(x) = 100", a: ["0"], hint: "Still just a number — no x means no change." },
+            { q: "Differentiate f(x) = π", a: ["0"], hint: "π is a fixed number (≈3.14159), so it's a constant too." },
+            { q: "Differentiate f(x) = e  (Euler's number, standing alone)", a: ["0"], hint: "e ≈ 2.71828 is a constant here — it's not e^x. Don't confuse it with the exponential function." }
+          ]
+        },
+        constant_multiple: {
+          name: "Constant multiple",
+          category: "Derivative Basics",
+          subject: "calculus",
+          formula: "d/dx [c * f(x)] = c * f'(x)",
+          desc: "A constant coefficient stays unchanged while you differentiate the function it multiplies.",
+          whenToUse: "Use any time a plain number multiplies a function — a coefficient in front of a polynomial, trig, or exponential term. Pull the constant out front, differentiate what remains, then multiply back in.",
+          steps: [
+            { text: "Identify the constant coefficient <strong>c</strong>." },
+            { text: "Differentiate the function <strong>f(x)</strong> as usual." },
+            { text: "Multiply the result by <strong>c</strong>." }
+          ],
+          example: { f: "f(x) = 4x^3", steps: [
+            "The constant coefficient is c = 4",
+            "Differentiate x^3 using the power rule: 3x^2",
+            "Multiply by 4: 4 * 3x^2 = 12x^2",
+            "Therefore, f'(x) = 12x^2"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = 5x^4", a: ["20x^3", "20*x^3", "20x3"], hint: "Keep the 5, differentiate x^4 to get 4x^3, then multiply: 5 × 4x^3." },
+            { q: "Differentiate f(x) = -3x^6", a: ["-18x^5", "-18*x^5", "-18x5"], hint: "Differentiate x^6 to get 6x^5, then multiply by -3." },
+            { q: "Differentiate f(x) = 7√x  (write as 7x^(1/2))", a: ["3.5x^-1/2", "7/2x^-1/2", "3.5/√x", "3.5/sqrt(x)"], hint: "Differentiate x^(1/2) to get (1/2)x^(-1/2), then multiply by 7." },
+            { q: "Differentiate f(x) = (2/3)x^9", a: ["6x^8", "6*x^8", "6x8"], hint: "Differentiate x^9 to get 9x^8, then multiply by 2/3: (2/3)×9 = 6." }
+          ]
+        },
+        sum: {
+          name: "Sum & difference",
+          category: "Derivative Basics",
+          subject: "calculus",
+          formula: "d/dx [f(x) +/- g(x)] = f'(x) +/- g'(x)",
+          desc: "The derivative of a sum or difference is the sum or difference of the derivatives. Differentiate each term separately.",
+          whenToUse: "Use whenever an expression is built out of separate terms added or subtracted — most polynomials and mixed expressions. Split it apart, differentiate term by term, then recombine with the same signs.",
+          steps: [
+            { text: "Break the expression into individual terms." },
+            { text: "Differentiate each term separately using the appropriate rule." },
+            { text: "Combine the results with the same signs (+ or -)." }
+          ],
+          example: { f: "f(x) = 3x^2 + 5x - 7", steps: [
+            "Break into terms: 3x^2, 5x, and -7",
+            "d/dx[3x^2] = 3 * 2x = 6x",
+            "d/dx[5x] = 5 * 1 = 5",
+            "d/dx[-7] = 0",
+            "Therefore, f'(x) = 6x + 5"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = 2x^3 + 4x^2 - x", a: ["6x^2+8x-1", "6x2+8x-1"], hint: "Differentiate each term: 2x^3 → 6x^2, 4x^2 → 8x, -x → -1." },
+            { q: "Differentiate f(x) = x^4 - 6x^2 + 9", a: ["4x^3-12x", "4x3-12x"], hint: "x^4 → 4x^3, -6x^2 → -12x, 9 → 0." },
+            { q: "Differentiate f(x) = 5x^3 + 2x^2 - 7x + 3", a: ["15x^2+4x-7", "15x2+4x-7"], hint: "Differentiate each term separately, then add them back together with their signs." },
+            { q: "Differentiate f(x) = x^5 - 3x^3 + 2x - 8", a: ["5x^4-9x^2+2", "5x4-9x2+2"], hint: "x^5 → 5x^4, -3x^3 → -9x^2, 2x → 2, -8 → 0." }
+          ]
+        },
+        product: {
+          name: "Product rule",
+          category: "Differentiation Rules",
+          subject: "calculus",
+          formula: "d/dx [f * g] = f' * g + f * g'",
+          desc: "When two functions are multiplied together, the derivative is: derivative of the first times the second, plus the first times derivative of the second.",
+          whenToUse: "Use whenever two functions of x are directly multiplied together and neither can be simplified into a single term first — e.g. a polynomial times a trig function, or x times an exponential. Do not just multiply the two derivatives together.",
+          steps: [
+            { text: "Identify the two functions being multiplied: <strong>f(x)</strong> and <strong>g(x)</strong>." },
+            { text: "Find <strong>f'(x)</strong> and <strong>g'(x)</strong> separately." },
+            { text: "Apply the formula: <strong>f' * g + f * g'</strong>." }
+          ],
+          example: { f: "f(x) = x^2 * e^x", steps: [
+            "Let u = x^2 and v = e^x",
+            "u' = 2x and v' = e^x",
+            "Apply product rule: u'v + uv' = 2x*e^x + x^2*e^x",
+            "Factor: e^x(2x + x^2)",
+            "Therefore, f'(x) = e^x(x^2 + 2x)"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = x^3 * sin(x)", a: ["3x^2*sin(x)+x^3*cos(x)", "3x2sin(x)+x3cos(x)"], hint: "f = x^3, g = sin(x). f' = 3x^2, g' = cos(x). Use f'g + fg'." },
+            { q: "Differentiate f(x) = x^2 * e^x", a: ["2x*e^x+x^2*e^x", "e^x(2x+x^2)", "e^x(x^2+2x)"], hint: "f = x^2, g = e^x. f' = 2x, g' = e^x." },
+            { q: "Differentiate f(x) = (x + 1)(x^2 - 3)", a: ["3x^2+2x-3", "3x2+2x-3"], hint: "f = x+1, g = x^2-3. f' = 1, g' = 2x. Use f'g + fg', then simplify." },
+            { q: "Differentiate f(x) = x^2 * ln(x)", a: ["2x*ln(x)+x", "2xln(x)+x"], hint: "f = x^2, g = ln(x). f' = 2x, g' = 1/x. Note x^2 * (1/x) simplifies to x." }
+          ]
+        },
+        quotient: {
+          name: "Quotient rule",
+          category: "Differentiation Rules",
+          subject: "calculus",
+          formula: "d/dx [f/g] = (f' * g - f * g') / g^2",
+          desc: "For a function divided by another function: bottom times derivative of top, minus top times derivative of bottom, over bottom squared.",
+          whenToUse: "Use whenever one function of x is divided by another and the fraction can't be simplified first (canceled or split into separate terms). The order in the numerator matters — top's derivative comes first.",
+          steps: [
+            { text: "Identify <strong>f(x)</strong> (top) and <strong>g(x)</strong> (bottom)." },
+            { text: "Find <strong>f'(x)</strong> and <strong>g'(x)</strong>." },
+            { text: "Apply: <strong>(f' * g - f * g') / g^2</strong>." }
+          ],
+          example: { f: "f(x) = x^2 / (x + 1)", steps: [
+            "Top: u = x^2 -> u' = 2x",
+            "Bottom: v = x + 1 -> v' = 1",
+            "Apply formula: (u'v - uv') / v^2 = (2x(x+1) - x^2*1) / (x+1)^2",
+            "Simplify numerator: 2x^2 + 2x - x^2 = x^2 + 2x",
+            "Therefore, f'(x) = (x^2 + 2x) / (x + 1)^2"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = (3x) / (x^2 + 1)", a: ["(3-3x^2)/(x^2+1)^2", "(3-3x2)/(x2+1)2"], hint: "Top: 3x → 3. Bottom: x^2+1 → 2x. Use (f'g - fg')/g^2." },
+            { q: "Differentiate f(x) = x^2 / (x - 2)", a: ["(x^2-4x)/(x-2)^2", "(x2-4x)/(x-2)2"], hint: "Top: x^2 → 2x. Bottom: x-2 → 1. Simplify the numerator after applying the formula." },
+            { q: "Differentiate f(x) = sin(x) / x^2", a: ["(x*cos(x)-2*sin(x))/x^3", "(xcos(x)-2sin(x))/x^3"], hint: "Top: sin(x) → cos(x). Bottom: x^2 → 2x. Simplify by canceling a factor of x." },
+            { q: "Differentiate f(x) = e^x / (x + 1)", a: ["e^x*x/(x+1)^2", "x*e^x/(x+1)^2", "(e^x(x+1)-e^x)/(x+1)^2"], hint: "Top: e^x → e^x. Bottom: x+1 → 1. Factor e^x out of the numerator to simplify." }
+          ]
+        },
+        chain: {
+          name: "Chain rule",
+          category: "Differentiation Rules",
+          subject: "calculus",
+          formula: "d/dx [f(g(x))] = f'(g(x)) * g'(x)",
+          desc: "For composite functions (a function inside another function): differentiate the outer function, keeping the inner function unchanged, then multiply by the derivative of the inner function.",
+          whenToUse: "Use whenever a function is nested inside another — something raised to a power, inside a trig function, inside an exponential, inside a log. If you can describe the expression as \"a function of a function,\" reach for this rule.",
+          steps: [
+            { text: "Identify the <strong>outer function</strong> f and the <strong>inner function</strong> g." },
+            { text: "Differentiate the outer function <strong>f</strong>, leaving the inner function <strong>g(x)</strong> inside." },
+            { text: "Multiply by the derivative of the inner function <strong>g'(x)</strong>." }
+          ],
+          example: { f: "f(x) = (3x + 2)^5", steps: [
+            "Outer: u^5 -> derivative is 5u^4",
+            "Inner: u = 3x + 2 -> derivative is 3",
+            "Apply chain rule: 5(3x+2)^4 * 3",
+            "Therefore, f'(x) = 15(3x + 2)^4"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = (4x + 1)^5", a: ["20(4x+1)^4", "20*(4x+1)^4"], hint: "Outer: u^5 → 5u^4. Inner: 4x+1 → 4. Multiply: 5(4x+1)^4 × 4." },
+            { q: "Differentiate f(x) = (x^2 + 1)^3", a: ["6x(x^2+1)^2", "6x(x2+1)2"], hint: "Outer: u^3 → 3u^2. Inner: x^2+1 → 2x. Multiply: 3(x^2+1)^2 × 2x." },
+            { q: "Differentiate f(x) = sin(3x^2)", a: ["6x*cos(3x^2)", "6xcos(3x^2)"], hint: "Outer: sin(u) → cos(u). Inner: 3x^2 → 6x. Multiply: cos(3x^2) × 6x." },
+            { q: "Differentiate f(x) = √(x^2 + 4)  (write as (x^2+4)^(1/2))", a: ["x/√(x^2+4)", "x/sqrt(x^2+4)", "x*(x^2+4)^-1/2"], hint: "Outer: u^(1/2) → (1/2)u^(-1/2). Inner: x^2+4 → 2x. Multiply and simplify." }
+          ]
+        },
+        exponential: {
+          name: "Exponential",
+          category: "Differentiation Rules",
+          subject: "calculus",
+          formula: "d/dx [e^x] = e^x     d/dx [a^x] = a^x * ln(a)",
+          desc: "The exponential function e^x is its own derivative. For other bases a^x, multiply by the natural log of the base.",
+          whenToUse: "Use whenever the variable x sits in the exponent — growth and decay models, RC-circuit charging curves, compound interest. If the exponent itself is a function of x (like 3x or x^2), pair this with the chain rule.",
+          steps: [
+            { text: "If the base is <strong>e</strong>, the derivative is unchanged: e^x." },
+            { text: "If the base is <strong>a</strong>, the derivative is a^x * ln(a)." },
+            { text: "If the exponent is a function of x, also apply the <strong>chain rule</strong>." }
+          ],
+          example: { f: "f(x) = e^(3x)", steps: [
+            "The base is e, so the derivative of e^u is e^u",
+            "The exponent is u = 3x, so u' = 3",
+            "Apply chain rule: e^(3x) * 3",
+            "Therefore, f'(x) = 3e^(3x)"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = 2^x", a: ["2^x*ln(2)", "ln(2)*2^x"], hint: "For a^x, the derivative is a^x × ln(a). Here a = 2." },
+            { q: "Differentiate f(x) = e^(3x)", a: ["3e^(3x)", "3*e^(3x)", "3e^3x"], hint: "Base e stays as e^u. Multiply by the derivative of the exponent, 3." },
+            { q: "Differentiate f(x) = 5^(2x)", a: ["2*5^(2x)*ln(5)", "5^(2x)*2ln(5)"], hint: "Derivative of a^u is a^u × ln(a) × u'. Here a=5, u=2x, u'=2." },
+            { q: "Differentiate f(x) = e^(x^2)", a: ["2x*e^(x^2)", "2xe^(x^2)"], hint: "Base e stays as e^u. Multiply by the derivative of the exponent x^2, which is 2x." }
+          ]
+        },
+        logarithmic: {
+          name: "Logarithmic",
+          category: "Differentiation Rules",
+          subject: "calculus",
+          formula: "d/dx [ln(x)] = 1/x     d/dx [log_a(x)] = 1/(x * ln(a))",
+          desc: "The derivative of the natural logarithm is 1/x. For other log bases, divide by x * ln(a).",
+          whenToUse: "Use whenever x (or a function of x) appears inside a log or ln. Common in signal-processing math (decibel scales) and whenever you need to \"undo\" an exponential relationship.",
+          steps: [
+            { text: "For <strong>ln(x)</strong>, the derivative is simply <strong>1/x</strong>." },
+            { text: "For <strong>log_a(x)</strong>, the derivative is <strong>1/(x * ln(a))</strong>." },
+            { text: "If the argument is a function of x, apply the <strong>chain rule</strong>." }
+          ],
+          example: { f: "f(x) = ln(x^2 + 1)", steps: [
+            "The outer function is ln(u), derivative is 1/u",
+            "The inner function is u = x^2 + 1, derivative is 2x",
+            "Apply chain rule: (1/(x^2+1)) * 2x",
+            "Therefore, f'(x) = 2x/(x^2 + 1)"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = ln(5x)", a: ["1/x"], hint: "ln(5x) = ln(5) + ln(x), and the constant ln(5) drops out. Or use the chain rule: 1/(5x) × 5 = 1/x." },
+            { q: "Differentiate f(x) = ln(x^2 + 1)", a: ["2x/(x^2+1)", "2x/(x2+1)"], hint: "Outer: ln(u) → 1/u. Inner: x^2+1 → 2x. Multiply." },
+            { q: "Differentiate f(x) = log_2(x)", a: ["1/(x*ln(2))", "1/(xln(2))"], hint: "For log base a, the derivative is 1/(x ln a). Here a = 2." },
+            { q: "Differentiate f(x) = ln(sin(x))", a: ["cos(x)/sin(x)", "cot(x)"], hint: "Outer: ln(u) → 1/u. Inner: sin(x) → cos(x). Multiply, and note the result simplifies to cot(x)." }
+          ]
+        },
+        trig: {
+          name: "Trigonometric",
+          category: "Differentiation Rules",
+          subject: "calculus",
+          formula: "d/dx[sin x]=cos x     d/dx[cos x]=-sin x     d/dx[tan x]=sec^2(x)",
+          desc: "Memorize the basic trig derivatives. Sine becomes cosine, cosine becomes negative sine, tangent becomes secant squared.",
+          whenToUse: "Use whenever sin, cos, or tan appears directly in the function — oscillations, waves, AC signals, phasors. If the angle itself is a function of x (like 3x or x^2), combine this with the chain rule.",
+          steps: [
+            { text: "<strong>sin(x)</strong> -> cos(x)" },
+            { text: "<strong>cos(x)</strong> -> -sin(x) (note the negative sign!)" },
+            { text: "<strong>tan(x)</strong> -> sec^2(x)" }
+          ],
+          example: { f: "f(x) = sin(2x)", steps: [
+            "The outer function is sin(u), derivative is cos(u)",
+            "The inner function is u = 2x, derivative is 2",
+            "Apply chain rule: cos(2x) * 2",
+            "Therefore, f'(x) = 2cos(2x)"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = cos(3x)", a: ["-3sin(3x)", "-3*sin(3x)"], hint: "cos(u) → -sin(u) × u'. Here u = 3x, so u' = 3." },
+            { q: "Differentiate f(x) = sin(5x)", a: ["5cos(5x)", "5*cos(5x)"], hint: "sin(u) → cos(u) × u'. Here u = 5x, so u' = 5." },
+            { q: "Differentiate f(x) = tan(2x)", a: ["2sec^2(2x)", "2*sec^2(2x)"], hint: "tan(u) → sec^2(u) × u'. Here u = 2x, so u' = 2." },
+            { q: "Differentiate f(x) = x * cos(x)", a: ["cos(x)-x*sin(x)", "cos(x)-xsin(x)"], hint: "This needs the product rule too: f = x, g = cos(x). f' = 1, g' = -sin(x)." }
+          ]
+        },
+        continuity: {
+          name: "Continuity",
+          category: "Limits & Continuity",
+          subject: "calculus",
+          formula: "f is continuous at x=a if:  lim[x&rarr;a] f(x) = f(a)",
+          desc: "A function is continuous at a point if you could trace through it without lifting your pencil. Formally, three things must all hold: f(a) must be defined, the limit as x approaches a must exist, and that limit must equal f(a).",
+          whenToUse: "Use this to check whether a function 'breaks' at a specific point — important because a function must be continuous at a point to even be differentiable there. Watch for three common discontinuity types: removable (a hole), jump (a sudden break), and infinite (a vertical asymptote).",
+          steps: [
+            { text: "Check that <strong>f(a)</strong> is defined — the function actually has a value at x=a." },
+            { text: "Check that <strong>lim[x&rarr;a] f(x)</strong> exists — the left-hand and right-hand limits must agree." },
+            { text: "Check that the limit from step 2 <strong>equals f(a)</strong>. If all three hold, f is continuous at a." }
+          ],
+          example: { f: "Is f(x) = (x^2-4)/(x-2) continuous at x=2?", steps: [
+            "f(2) is undefined — plugging in 2 gives 0/0",
+            "But lim[x&rarr;2] f(x) = lim[x&rarr;2] (x-2)(x+2)/(x-2) = lim[x&rarr;2] (x+2) = 4, so the limit exists",
+            "Since f(2) is undefined even though the limit exists, the function is discontinuous at x=2",
+            "This is a removable discontinuity — a single hole in the graph at (2,4)"
+          ]},
+          practice: [
+            { q: "What type of discontinuity does f(x) = 1/(x-3) have at x = 3?", a: ["infinite", "infinite discontinuity", "vertical asymptote"], hint: "As x&rarr;3, the denominator&rarr;0 while the numerator stays 1, so the function shoots off toward &plusmn;infinity." },
+            { q: "Is f(x) = x^2 + 1 continuous at x = 5?", a: ["yes", "yes, continuous", "continuous"], hint: "Polynomials are continuous everywhere — there's no point where they break, have holes, or jump." }
+          ]
+        },
+        rate_of_change: {
+          name: "Slope & Rate of Change",
+          category: "Derivative Basics",
+          subject: "calculus",
+          formula: "Average rate of change = [f(b) - f(a)] / (b - a)<br>Instantaneous rate of change = f'(a)",
+          desc: "The average rate of change over an interval is the slope of the secant line connecting two points on the curve. The instantaneous rate of change at a single point is the slope of the tangent line there — exactly what the derivative gives you.",
+          whenToUse: "Use the average rate of change formula when comparing a function's value at two different points, like average velocity over a time interval. Use the derivative (instantaneous rate) when you need the rate at one exact instant instead of an average.",
+          steps: [
+            { text: "For <strong>average</strong> rate of change, pick two points a and b, then compute [f(b)-f(a)]/(b-a) — the same as finding slope between two coordinates." },
+            { text: "For <strong>instantaneous</strong> rate of change, differentiate f(x) to get f'(x), then evaluate it at the specific point you need." }
+          ],
+          example: { f: "A ball's height is h(t) = -5t^2 + 20t. Find its average velocity from t=1 to t=3.", steps: [
+            "h(1) = -5(1)^2 + 20(1) = 15",
+            "h(3) = -5(3)^2 + 20(3) = -45 + 60 = 15",
+            "Average rate of change = [h(3) - h(1)]/(3-1) = (15-15)/2 = 0",
+            "The ball is at the same height at t=1 and t=3, so its net average velocity over that interval is 0"
+          ]},
+          practice: [
+            { q: "Find the average rate of change of f(x) = x^2 from x=1 to x=4", a: ["5"], hint: "Compute [f(4)-f(1)]/(4-1) = (16-1)/3." },
+            { q: "Find the instantaneous rate of change of f(x) = x^2 + 3x at x = 2", a: ["7"], hint: "Differentiate to get f'(x) = 2x+3, then plug in x=2." }
+          ]
+        },
+        inverse_trig: {
+          name: "Inverse Trigonometric",
+          category: "Differentiation Rules",
+          subject: "calculus",
+          formula: "d/dx[sin&#8315;&sup1;(u)] = u' / &radic;(1-u^2)<br>d/dx[cos&#8315;&sup1;(u)] = -u' / &radic;(1-u^2)<br>d/dx[tan&#8315;&sup1;(u)] = u' / (1+u^2)",
+          desc: "The inverse trig derivatives look different from their regular trig counterparts — instead of more trig functions, you get algebraic expressions with square roots and squares. They show up whenever you're solving for an angle rather than a ratio.",
+          whenToUse: "Use these whenever the variable sits inside an inverse trig function like arcsin, arccos, or arctan — common in problems involving angles of elevation, bearings, and inverse kinematics.",
+          steps: [
+            { text: "Identify which inverse trig function you have, and what <strong>u</strong> (the inside expression) is." },
+            { text: "Plug u and u' into the matching formula above." },
+            { text: "Simplify the result." }
+          ],
+          example: { f: "Differentiate f(x) = sin&#8315;&sup1;(2x)", steps: [
+            "Here u = 2x, so u' = 2",
+            "Apply the formula: u'/&radic;(1-u^2) = 2/&radic;(1-(2x)^2)",
+            "Therefore, f'(x) = 2/&radic;(1-4x^2)"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = tan&#8315;&sup1;(3x)", a: ["3/(1+9x^2)", "3/1+9x^2"], hint: "u=3x, u'=3. Plug into u'/(1+u^2): 3/(1+(3x)^2)." },
+            { q: "Differentiate f(x) = cos&#8315;&sup1;(x^2)", a: ["-2x/√(1-x^4)", "-2x/sqrt(1-x^4)"], hint: "u=x^2, u'=2x. Plug into -u'/&radic;(1-u^2): -2x/&radic;(1-x^4)." }
+          ]
+        },
+        hyperbolic: {
+          name: "Hyperbolic Functions",
+          category: "Differentiation Rules",
+          subject: "calculus",
+          formula: "d/dx[sinh u] = cosh u &middot; u'<br>d/dx[cosh u] = sinh u &middot; u'<br>d/dx[tanh u] = sech^2 u &middot; u'",
+          desc: "Hyperbolic functions (sinh, cosh, tanh) behave like trig functions but are built from e^x instead of circular motion. They show up in catenary curves (hanging cables) and certain engineering load and heat-transfer models.",
+          whenToUse: "Use these whenever sinh, cosh, or tanh appears directly — common in structural engineering (cable sag, arches) and heat transfer. Unlike regular trig, notice cosh's derivative has no negative sign.",
+          steps: [
+            { text: "Identify the hyperbolic function and its inner expression u." },
+            { text: "Differentiate using the matching rule — cosh's derivative stays positive, unlike cos." },
+            { text: "Multiply by u' if the inside is more than just x (chain rule)." }
+          ],
+          example: { f: "Differentiate f(x) = cosh(3x)", steps: [
+            "Outer: cosh(u) → sinh(u)",
+            "Inner: u = 3x → u' = 3",
+            "Apply: sinh(3x) * 3",
+            "Therefore, f'(x) = 3sinh(3x)"
+          ]},
+          practice: [
+            { q: "Differentiate f(x) = sinh(2x)", a: ["2cosh(2x)", "2*cosh(2x)"], hint: "sinh(u)→cosh(u)&middot;u'. Here u=2x, u'=2." },
+            { q: "Differentiate f(x) = tanh(x^2)", a: ["2x*sech^2(x^2)", "2xsech^2(x^2)"], hint: "tanh(u)→sech^2(u)&middot;u'. Here u=x^2, u'=2x." }
+          ]
+        },
+        implicit: {
+          name: "Implicit Differentiation",
+          category: "Advanced Techniques",
+          subject: "calculus",
+          formula: "Differentiate both sides of the equation with respect to x, treating y as a function of x — every y term picks up a factor of dy/dx.",
+          desc: "Some equations, like x^2 + y^2 = 25, mix x and y so tightly you can't easily solve for y first. Implicit differentiation lets you differentiate the whole equation as-is, treating y as an unknown function of x, then solve algebraically for dy/dx.",
+          whenToUse: "Use this whenever y isn't isolated on one side of the equation — circles, ellipses, and other curves defined by a relationship between x and y rather than a clean y = f(x).",
+          steps: [
+            { text: "Differentiate both sides of the equation with respect to x." },
+            { text: "Every time you differentiate a term containing y, multiply by <strong>dy/dx</strong> (chain rule, since y is a function of x)." },
+            { text: "Collect all the dy/dx terms on one side, factor it out, then divide to solve for dy/dx." }
+          ],
+          example: { f: "Find dy/dx for x^2 + y^2 = 25", steps: [
+            "Differentiate both sides: 2x + 2y(dy/dx) = 0",
+            "Isolate the dy/dx term: 2y(dy/dx) = -2x",
+            "Divide by 2y: dy/dx = -2x/2y",
+            "Therefore, dy/dx = -x/y"
+          ]},
+          practice: [
+            { q: "Find dy/dx for x^2 + y^2 = 100", a: ["-x/y"], hint: "Same steps as the example: differentiate both sides, isolate dy/dx, then simplify." },
+            { q: "Find dy/dx for xy = 10", a: ["-y/x"], hint: "Use the product rule on xy: 1&middot;y + x&middot;(dy/dx) = 0. Then solve for dy/dx." }
+          ]
+        },
+        higher_order: {
+          name: "Higher-Order Derivatives",
+          category: "Advanced Techniques",
+          subject: "calculus",
+          formula: "f''(x) = d/dx[f'(x)]&nbsp;&nbsp;(second derivative)<br>f'''(x), f&#8317;&#8308;&#8317;(x), ... follow the same pattern",
+          desc: "Nothing stops you from differentiating a derivative again. The second derivative f''(x) gives the rate of change of the rate of change (like acceleration, if f is position), and its sign reveals a curve's concavity: positive means concave up, negative means concave down.",
+          whenToUse: "Use the second derivative to analyze concavity, find inflection points, or move from velocity to acceleration in motion problems. Third and higher derivatives appear more rarely, mostly in Taylor series and jerk-type motion analysis.",
+          steps: [
+            { text: "Differentiate f(x) once to get f'(x)." },
+            { text: "Differentiate f'(x) again, using the same rules as before, to get f''(x)." },
+            { text: "If f''(x) &gt; 0 the curve is concave up; if f''(x) &lt; 0, concave down; if f''(x)=0, check for an inflection point." }
+          ],
+          example: { f: "Find f''(x) for f(x) = x^4 - 3x^2", steps: [
+            "First derivative: f'(x) = 4x^3 - 6x",
+            "Differentiate again: f''(x) = 12x^2 - 6",
+            "Therefore, f''(x) = 12x^2 - 6"
+          ]},
+          practice: [
+            { q: "Find f''(x) for f(x) = x^3 + 2x", a: ["6x"], hint: "f'(x) = 3x^2+2, then differentiate again: f''(x) = 6x." },
+            { q: "Find f''(x) for f(x) = sin(x)", a: ["-sin(x)"], hint: "f'(x) = cos(x), then differentiate again: f''(x) = -sin(x)." }
+          ]
+        },
+        parametric: {
+          name: "Parametric Equations",
+          category: "Advanced Techniques",
+          subject: "calculus",
+          formula: "dy/dx = (dy/dt) / (dx/dt)",
+          desc: "When x and y are both written in terms of a third variable t (like x=cos(t), y=sin(t) tracing a circle), you can't differentiate y with respect to x directly. Instead, differentiate each with respect to t separately, then divide.",
+          whenToUse: "Use this whenever a curve is described parametrically — projectile motion, circular or elliptical paths, and any situation where position is naturally described by a time parameter t rather than a direct y=f(x) relationship.",
+          steps: [
+            { text: "Differentiate x(t) with respect to t to get dx/dt." },
+            { text: "Differentiate y(t) with respect to t to get dy/dt." },
+            { text: "Divide: dy/dx = (dy/dt) / (dx/dt)." }
+          ],
+          example: { f: "Find dy/dx if x = t^2 and y = t^3", steps: [
+            "dx/dt = 2t",
+            "dy/dt = 3t^2",
+            "dy/dx = (3t^2)/(2t) = 3t/2",
+            "Therefore, dy/dx = 3t/2"
+          ]},
+          practice: [
+            { q: "Find dy/dx if x = 3t and y = t^2", a: ["2t/3"], hint: "dx/dt=3, dy/dt=2t. Divide dy/dt by dx/dt." },
+            { q: "Find dy/dx if x = cos(t) and y = sin(t)", a: ["-cot(t)", "-cos(t)/sin(t)"], hint: "dx/dt=-sin(t), dy/dt=cos(t). Divide, and simplify the ratio." }
+          ]
+        },
+        partial: {
+          name: "Partial Differentiation",
+          category: "Advanced Techniques",
+          subject: "calculus",
+          formula: "&part;f/&part;x — differentiate with respect to x, treating y as a constant<br>&part;f/&part;y — differentiate with respect to y, treating x as a constant",
+          desc: "For a function of two variables, f(x,y), a partial derivative measures how f changes as only one variable moves while the other is frozen in place — like asking how temperature changes as you move east, ignoring any change in elevation.",
+          whenToUse: "Use this whenever a quantity depends on more than one independent variable — common in engineering analysis of surfaces, heat distribution, or any multivariable physical model.",
+          steps: [
+            { text: "To find &part;f/&part;x, treat every y in the expression as if it were a constant number, then differentiate normally with respect to x." },
+            { text: "To find &part;f/&part;y, treat every x as a constant, then differentiate normally with respect to y." }
+          ],
+          example: { f: "Find &part;f/&part;x and &part;f/&part;y for f(x,y) = x^2*y + 3y^2", steps: [
+            "For &part;f/&part;x: treat y as a constant. d/dx[x^2*y] = 2xy, d/dx[3y^2] = 0, so &part;f/&part;x = 2xy",
+            "For &part;f/&part;y: treat x as a constant. d/dy[x^2*y] = x^2, d/dy[3y^2] = 6y, so &part;f/&part;y = x^2 + 6y"
+          ]},
+          practice: [
+            { q: "Find &part;f/&part;x for f(x,y) = x^3*y^2", a: ["3x^2*y^2", "3x^2y^2"], hint: "Treat y as a constant — it rides along as a coefficient while you apply the power rule to x^3." },
+            { q: "Find &part;f/&part;y for f(x,y) = x^3*y^2", a: ["2x^3*y", "2x^3y"], hint: "Treat x as a constant this time, and apply the power rule to y^2." }
+          ]
+        },
+        tangent_normal: {
+          name: "Tangent & Normal Lines",
+          category: "Applications",
+          subject: "calculus",
+          formula: "Tangent line: y - y1 = f'(a)(x - x1)<br>Normal line: y - y1 = [-1/f'(a)](x - x1)",
+          desc: "The tangent line touches the curve at one point and shares its exact slope there — that slope is f'(a). The normal line is perpendicular to the tangent at that same point, so its slope is the negative reciprocal of f'(a).",
+          whenToUse: "Use this whenever you need the equation of a line touching or perpendicular to a curve at a specific point — common in optics (angle of reflection), structural analysis, and curve-fitting problems.",
+          steps: [
+            { text: "Find f'(x), then evaluate it at the given point to get the tangent slope." },
+            { text: "For the tangent line, plug the slope and point into point-slope form: y - y1 = m(x - x1)." },
+            { text: "For the normal line, use the negative reciprocal of that slope instead." }
+          ],
+          example: { f: "Find the tangent line to f(x) = x^2 at x = 2", steps: [
+            "f(2) = 4, so the point is (2,4)",
+            "f'(x) = 2x, so f'(2) = 4 — that's the tangent slope",
+            "Point-slope form: y - 4 = 4(x - 2)",
+            "Therefore, the tangent line is y = 4x - 4"
+          ]},
+          practice: [
+            { q: "Find the slope of the tangent line to f(x) = x^3 at x = 1", a: ["3"], hint: "f'(x) = 3x^2. Evaluate at x=1." },
+            { q: "Find the slope of the normal line to f(x) = x^2 at x = 3", a: ["-1/6"], hint: "f'(x) = 2x, so f'(3)=6 is the tangent slope. The normal slope is the negative reciprocal: -1/6." }
+          ]
+        },
+        optimization: {
+          name: "Optimization (Max/Min)",
+          category: "Applications",
+          subject: "calculus",
+          formula: "Set f'(x) = 0 to find critical points, then use f''(x) to classify them:<br>f''(x) &gt; 0 &rarr; local min&nbsp;&nbsp;&nbsp;f''(x) &lt; 0 &rarr; local max",
+          desc: "At a peak or valley of a smooth curve, the tangent line is momentarily flat — meaning the derivative is zero. These are called critical points, and checking the second derivative (or the sign of the first derivative on either side) tells you whether each one is a maximum, minimum, or neither.",
+          whenToUse: "Use this any time a problem asks for the 'best' value — maximum area, minimum cost, maximum height, least material — subject to some constraint. It's one of the most common real-world applications of the derivative.",
+          steps: [
+            { text: "Write the quantity you want to optimize as a function of one variable." },
+            { text: "Differentiate and set f'(x) = 0 to find critical points." },
+            { text: "Use the second derivative test (or a sign chart of f') to classify each critical point as a max or a min." }
+          ],
+          example: { f: "Find the maximum of f(x) = -x^2 + 4x", steps: [
+            "f'(x) = -2x + 4",
+            "Set f'(x) = 0: -2x + 4 = 0, so x = 2",
+            "f''(x) = -2, which is negative — so x=2 is a maximum",
+            "f(2) = -4+8 = 4, so the maximum value is 4 at x=2"
+          ]},
+          practice: [
+            { q: "Find the x-value of the critical point of f(x) = x^2 - 6x + 5", a: ["3"], hint: "Set f'(x)=2x-6 equal to 0 and solve for x." },
+            { q: "Is the critical point of f(x) = x^2 - 6x + 5 a maximum or a minimum?", a: ["minimum", "min"], hint: "Check f''(x). Since f''(x)=2 is positive, the curve is concave up there." }
+          ]
+        },
+        related_rates: {
+          name: "Related Rates",
+          category: "Applications",
+          subject: "calculus",
+          formula: "Differentiate both sides of an equation relating two or more quantities with respect to time t, using the chain rule on each variable.",
+          desc: "Related rates problems connect two changing quantities through an equation, like the radius and volume of an expanding balloon, then ask how fast one changes given how fast the other is changing. The key move is differentiating the whole relationship with respect to time.",
+          whenToUse: "Use this whenever a problem describes multiple quantities changing together over time and gives you one rate while asking for another — a ladder sliding down a wall, a shadow's length changing, or a balloon inflating are classic examples.",
+          steps: [
+            { text: "Write an equation relating the quantities involved — often geometry, like area, volume, or the Pythagorean theorem." },
+            { text: "Differentiate both sides with respect to time t, treating each variable as a function of t (this gives a d(...)/dt term for each)." },
+            { text: "Plug in the known values and known rate, then solve for the unknown rate." }
+          ],
+          example: { f: "A circle's radius grows at 3 cm/s. How fast is the area growing when r = 5cm?", steps: [
+            "Area formula: A = &pi;r^2",
+            "Differentiate with respect to t: dA/dt = 2&pi;r(dr/dt)",
+            "Plug in r=5 and dr/dt=3: dA/dt = 2&pi;(5)(3) = 30&pi;",
+            "Therefore, the area is growing at 30&pi; cm&sup2;/s"
+          ]},
+          practice: [
+            { q: "A square's side grows at 2 cm/s. How fast is its area growing when the side is 4cm? (A = s^2)", a: ["16"], hint: "dA/dt = 2s(ds/dt). Plug in s=4 and ds/dt=2." },
+            { q: "A sphere's radius grows at 1 cm/s. How fast is its volume growing when r = 2cm? (V = (4/3)&pi;r^3)", a: ["16pi", "16&pi;", "16 pi"], hint: "dV/dt = 4&pi;r^2(dr/dt). Plug in r=2 and dr/dt=1." }
+          ]
+        },
+        differentials: {
+          name: "Differentials & Linear Approx.",
+          category: "Applications",
+          subject: "calculus",
+          formula: "dy = f'(x) dx<br>Linear approximation: f(x + &Delta;x) &approx; f(x) + f'(x)&middot;&Delta;x",
+          desc: "The differential dy approximates how much f(x) changes for a small change dx in x, using just the tangent line instead of the actual curve. This gives a fast way to estimate function values near a known point, and it's also the basis of the Newton-Raphson method for finding roots.",
+          whenToUse: "Use this to quickly estimate a function value near a known point without a calculator, to estimate error propagation in measurements, or as the first step of the Newton-Raphson method for approximating roots of equations.",
+          steps: [
+            { text: "Find f'(x) and evaluate it at the known point." },
+            { text: "Multiply by the small change dx (or &Delta;x) to get the differential dy = f'(x)&middot;dx." },
+            { text: "Add dy to f(x) to approximate f(x + dx)." }
+          ],
+          example: { f: "Use differentials to approximate &radic;4.1", steps: [
+            "Let f(x) = &radic;x, with known point x=4 (since &radic;4=2 is easy)",
+            "f'(x) = 1/(2&radic;x), so f'(4) = 1/4 = 0.25",
+            "dx = 4.1 - 4 = 0.1, so dy = 0.25 * 0.1 = 0.025",
+            "Approximate: f(4.1) &approx; f(4) + dy = 2 + 0.025 = 2.025"
+          ]},
+          practice: [
+            { q: "Use differentials to approximate &radic;9.1 (let f(x)=&radic;x, known point x=9)", a: ["3.0167", "3.017", "3.01"], hint: "f'(9)=1/(2&radic;9)=1/6. dx=0.1, so dy=0.1/6&approx;0.0167. Add to f(9)=3." },
+            { q: "If f(x) = x^3 and dx = 0.01 at x = 2, find the differential dy", a: ["0.12"], hint: "f'(x) = 3x^2, so f'(2)=12. Multiply by dx: dy = 12 * 0.01." }
+          ]
+        },
+        redox: {
+          name: "Redox & Balancing",
+          category: "Electrochemistry",
+          subject: "chemistry",
+          formula: "Oxidation: loses electrons, oxidation number increases<br>Reduction: gains electrons, oxidation number decreases<br>&quot;OIL RIG&quot; — Oxidation Is Loss, Reduction Is Gain",
+          desc: "Every redox reaction is really two half-reactions happening together: one species loses electrons (is oxidized) while another gains them (is reduced). Balancing a redox equation means balancing atoms first, then balancing the electrons transferred between the two half-reactions.",
+          whenToUse: "Use this whenever a reaction involves a change in oxidation numbers — metal corrosion, combustion, and every reaction that happens inside a galvanic or electrolytic cell.",
+          steps: [
+            { text: "Split the reaction into two half-reactions: one oxidation, one reduction." },
+            { text: "Balance atoms other than O and H first, then balance O with H2O and H with H+ (acidic solution)." },
+            { text: "Balance charge in each half-reaction by adding electrons, then multiply each half-reaction so the electrons lost equal the electrons gained." },
+            { text: "Add the two half-reactions together and cancel anything that appears on both sides." }
+          ],
+          example: { f: "Balance: Zn + Cu^2+ &rarr; Zn^2+ + Cu", steps: [
+            "Oxidation half-reaction: Zn &rarr; Zn^2+ + 2e- (zinc loses 2 electrons)",
+            "Reduction half-reaction: Cu^2+ + 2e- &rarr; Cu (copper gains 2 electrons)",
+            "The electrons already match (2 and 2), so add the half-reactions directly",
+            "Overall: Zn + Cu^2+ &rarr; Zn^2+ + Cu"
+          ]},
+          practice: [
+            { q: "In the reaction Zn + Cu^2+ &rarr; Zn^2+ + Cu, which species is oxidized?", a: ["zn", "zinc"], hint: "Oxidation means losing electrons — zinc goes from a neutral charge (0) to +2." },
+            { q: "How many electrons are transferred when Al &rarr; Al^3+ + 3e- combines with a reduction half-reaction Cu^2+ + 2e- &rarr; Cu?", a: ["6"], hint: "Find the least common multiple of 3 and 2 electrons so both half-reactions transfer the same number." }
+          ]
+        },
+        galvanic: {
+          name: "Galvanic Cells",
+          category: "Electrochemistry",
+          subject: "chemistry",
+          formula: "E&deg;cell = E&deg;cathode - E&deg;anode",
+          desc: "A galvanic (voltaic) cell converts a spontaneous redox reaction into electrical energy. Oxidation happens at the anode, reduction happens at the cathode, and electrons flow through an external wire from anode to cathode — that flow is the current you can harness.",
+          whenToUse: "Use this to find the voltage a battery-like cell will produce, or to predict whether a redox reaction will happen spontaneously (a positive E°cell means yes).",
+          steps: [
+            { text: "Identify the two half-reactions and look up their standard reduction potentials (E&deg;)." },
+            { text: "The half-reaction with the higher (more positive) E&deg; runs as reduction at the <strong>cathode</strong>; the other reverses and runs as oxidation at the <strong>anode</strong>." },
+            { text: "Compute E&deg;cell = E&deg;cathode - E&deg;anode (using their standard reduction potentials as listed, unreversed)." }
+          ],
+          example: { f: "Find E&deg;cell for a Zn/Cu cell (E&deg;Zn2+/Zn = -0.76V, E&deg;Cu2+/Cu = +0.34V)", steps: [
+            "Copper's reduction potential (+0.34V) is higher, so Cu^2+/Cu is the cathode",
+            "Zinc is the anode (it gets oxidized): E&deg;anode = -0.76V",
+            "E&deg;cell = E&deg;cathode - E&deg;anode = 0.34 - (-0.76) = 1.10V",
+            "Therefore, E&deg;cell = +1.10V, and the reaction is spontaneous"
+          ]},
+          practice: [
+            { q: "A cell has E&deg;cathode = +0.80V and E&deg;anode = -0.44V. Find E&deg;cell.", a: ["1.24"], hint: "E&deg;cell = E&deg;cathode - E&deg;anode = 0.80 - (-0.44)." },
+            { q: "If E&deg;cell for a reaction comes out negative, is the reaction spontaneous as written?", a: ["no", "not spontaneous"], hint: "A negative E&deg;cell means the reverse reaction is actually the spontaneous one." }
+          ]
+        },
+        nernst: {
+          name: "Nernst Equation",
+          category: "Electrochemistry",
+          subject: "chemistry",
+          formula: "E = E&deg; - (RT/nF)ln(Q)  &nbsp;&nbsp;&approx;&nbsp;&nbsp;  E = E&deg; - (0.0592/n)log(Q)  at 25&deg;C",
+          desc: "Standard cell potentials (E&deg;) only apply under standard conditions (1M concentrations, 1atm, 25&deg;C). The Nernst equation corrects the cell potential for whatever actual concentrations are present, using the reaction quotient Q.",
+          whenToUse: "Use this whenever concentrations aren't at standard 1M conditions — battery discharge over time, concentration cells, and pH-dependent electrode potentials all need this correction.",
+          steps: [
+            { text: "Write the balanced overall reaction and its E&deg;cell." },
+            { text: "Determine n, the number of electrons transferred, and Q, the reaction quotient (products over reactants, using actual concentrations)." },
+            { text: "Plug into E = E&deg; - (0.0592/n)log(Q) at 25&deg;C to find the actual cell potential." }
+          ],
+          example: { f: "Find E for a Zn/Cu cell (E&deg;=1.10V, n=2) if [Zn^2+]=0.010M and [Cu^2+]=1.0M", steps: [
+            "Q = [Zn^2+]/[Cu^2+] = 0.010/1.0 = 0.010",
+            "E = E&deg; - (0.0592/n)log(Q) = 1.10 - (0.0592/2)log(0.010)",
+            "log(0.010) = -2, so E = 1.10 - (0.0296)(-2) = 1.10 + 0.0592",
+            "Therefore, E = 1.16V"
+          ]},
+          practice: [
+            { q: "For a cell with E&deg;=0.46V, n=2, and Q=1 (standard conditions), find E.", a: ["0.46"], hint: "log(1) = 0, so the whole correction term drops out and E = E&deg;." },
+            { q: "If Q increases above 1, does E increase or decrease relative to E&deg;?", a: ["decrease", "decreases"], hint: "log(Q) becomes positive when Q>1, and it's subtracted from E&deg;, so E goes down." }
+          ]
+        },
+        electrolysis: {
+          name: "Electrolysis & Faraday's Law",
+          category: "Electrochemistry",
+          subject: "chemistry",
+          formula: "moles of electrons = It / F&nbsp;&nbsp;(F = 96,500 C/mol e-)",
+          desc: "Electrolysis forces a non-spontaneous redox reaction to occur by pushing electrical current through a cell. Faraday's Law connects the amount of charge passed to the amount of substance produced or consumed at each electrode.",
+          whenToUse: "Use this to calculate how much metal will be plated, how much gas will be produced, or how long a current must run to deposit a target mass — common in electroplating and metal refining calculations.",
+          steps: [
+            { text: "Find the total charge passed: Q = I &middot; t (current in amps &times; time in seconds)." },
+            { text: "Convert charge to moles of electrons: moles e- = Q / F, where F = 96,500 C/mol." },
+            { text: "Use the balanced half-reaction to convert moles of electrons to moles (then mass) of product." }
+          ],
+          example: { f: "How many moles of Cu are deposited by 2.0A for 965 seconds? (Cu^2+ + 2e- &rarr; Cu)", steps: [
+            "Charge: Q = It = 2.0 &times; 965 = 1930 C",
+            "Moles of electrons: 1930 / 96500 = 0.020 mol e-",
+            "Since 2 mol e- deposits 1 mol Cu, moles of Cu = 0.020/2 = 0.010 mol",
+            "Therefore, 0.010 mol of Cu is deposited"
+          ]},
+          practice: [
+            { q: "How many moles of electrons pass through a cell with 4.0A of current for 4825 seconds?", a: ["0.2", "0.20"], hint: "Q=It=4.0&times;4825=19300C. Divide by F=96500 C/mol." },
+            { q: "For the half-reaction Ag+ + e- &rarr; Ag, how many moles of Ag are deposited by 0.5 mol of electrons?", a: ["0.5"], hint: "Since only 1 electron is needed per Ag deposited, moles of Ag equal moles of electrons here." }
+          ]
+        },
+        radioactive_decay: {
+          name: "Radioactive Decay",
+          category: "Nuclear Chemistry",
+          subject: "chemistry",
+          formula: "N(t) = N&#8320; e^(-&lambda;t)&nbsp;&nbsp;&nbsp;t&#189; = ln(2)/&lambda;",
+          desc: "Unstable nuclei break down over time through alpha decay (loses a helium nucleus), beta decay (a neutron converts to a proton, emitting an electron), or gamma decay (releases energy only, no change in mass or charge). This breakdown follows first-order kinetics, meaning a constant fraction decays per unit time.",
+          whenToUse: "Use this to determine how much of a radioactive sample remains after a given time, to find a substance's half-life, or to date geological/archaeological samples using known decay rates (like carbon-14 dating).",
+          steps: [
+            { text: "Identify the decay constant &lambda;, either given directly or found from the half-life: &lambda; = ln(2)/t&#189;." },
+            { text: "Plug the initial amount N&#8320;, the decay constant, and the elapsed time t into N(t) = N&#8320;e^(-&lambda;t)." },
+            { text: "Solve for whichever quantity is unknown (remaining amount, elapsed time, or half-life)." }
+          ],
+          example: { f: "A sample with a 10-day half-life starts at 80g. How much remains after 30 days?", steps: [
+            "&lambda; = ln(2)/10 = 0.0693 per day",
+            "30 days is exactly 3 half-lives (30/10 = 3)",
+            "Each half-life cuts the amount in half: 80 &rarr; 40 &rarr; 20 &rarr; 10",
+            "Therefore, 10g remains after 30 days"
+          ]},
+          practice: [
+            { q: "A sample has a half-life of 5 years. Starting with 100g, how much remains after 15 years?", a: ["12.5"], hint: "15 years is 3 half-lives (15/5=3). Halve the amount 3 times: 100&rarr;50&rarr;25&rarr;12.5." },
+            { q: "What type of decay converts a neutron into a proton and emits an electron?", a: ["beta", "beta decay"], hint: "Alpha decay emits a helium nucleus; gamma releases only energy; the third type involves an electron being emitted." }
+          ]
+        },
+        nuclear_equations: {
+          name: "Balancing Nuclear Equations",
+          category: "Nuclear Chemistry",
+          subject: "chemistry",
+          formula: "Mass numbers (top) must balance on both sides.<br>Atomic numbers (bottom) must balance on both sides.",
+          desc: "A nuclear equation shows a parent nucleus transforming into a daughter nucleus (plus any emitted particle). Unlike chemical equations, you balance the mass numbers (protons+neutrons) and atomic numbers (protons) separately instead of balancing atoms of each element.",
+          whenToUse: "Use this to identify an unknown product or parent nucleus in a decay or transmutation process — essential for predicting what a radioactive isotope turns into.",
+          steps: [
+            { text: "Write the known nuclei with their mass number (top) and atomic number (bottom)." },
+            { text: "Set up the equation so the sum of mass numbers on the left equals the sum on the right, and same for atomic numbers." },
+            { text: "Solve for the missing mass number and atomic number, then identify the element from the atomic number on the periodic table." }
+          ],
+          example: { f: "Uranium-238 undergoes alpha decay. What's the daughter nucleus? (U, Z=92; alpha = He-4, Z=2)", steps: [
+            "Mass numbers: 238 = (daughter mass) + 4, so daughter mass = 234",
+            "Atomic numbers: 92 = (daughter Z) + 2, so daughter Z = 90",
+            "Atomic number 90 corresponds to thorium (Th)",
+            "Therefore, the daughter nucleus is Th-234"
+          ]},
+          practice: [
+            { q: "Co-60 (Z=27) undergoes beta decay (emits an electron, Z=-1, mass=0). Find the daughter's atomic number.", a: ["28"], hint: "Atomic numbers must balance: 27 = (daughter Z) + (-1), so daughter Z = 27-(-1)." },
+            { q: "In alpha decay, by how much does the mass number decrease?", a: ["4"], hint: "An alpha particle is a helium nucleus, with mass number 4." }
+          ]
+        },
+        nuclear_energy: {
+          name: "Nuclear Binding Energy",
+          category: "Nuclear Chemistry",
+          subject: "chemistry",
+          formula: "E = &Delta;mc^2&nbsp;&nbsp;&nbsp;(c = 3&times;10^8 m/s)",
+          desc: "When protons and neutrons bind together into a nucleus, a tiny amount of mass converts into energy — the famous mass defect. That released energy (via E=mc²) is what holds the nucleus together, and it's also what's released (or absorbed) in fission and fusion reactions.",
+          whenToUse: "Use this to calculate the enormous energy released in fission (splitting heavy nuclei, used in nuclear reactors) or fusion (combining light nuclei, powering the sun) reactions — even a tiny mass defect produces a huge amount of energy because c² is such a large number.",
+          steps: [
+            { text: "Find the mass defect &Delta;m: the difference between the total mass of the separate particles and the actual mass of the nucleus (or between reactants and products)." },
+            { text: "Convert &Delta;m to kilograms if it's given in atomic mass units." },
+            { text: "Plug into E = &Delta;mc^2 to find the energy released." }
+          ],
+          example: { f: "Find the energy released when &Delta;m = 3.0 &times; 10^-28 kg is converted to energy", steps: [
+            "E = &Delta;mc^2",
+            "E = (3.0&times;10^-28)(3&times;10^8)^2",
+            "E = (3.0&times;10^-28)(9&times;10^16)",
+            "Therefore, E = 2.7&times;10^-11 J"
+          ]},
+          practice: [
+            { q: "Which process combines light nuclei (like hydrogen) into a heavier nucleus, releasing energy?", a: ["fusion"], hint: "The sun powers itself this way — it's the opposite of splitting a heavy nucleus apart." },
+            { q: "Which process splits a heavy nucleus (like uranium) into smaller nuclei, releasing energy?", a: ["fission"], hint: "This is the process used in most nuclear power plants." }
+          ]
+        },
+        fuel_classification: {
+          name: "Fuels & Calorific Value",
+          category: "Fuels",
+          subject: "chemistry",
+          formula: "HCV = LCV + (mass of H2O formed &times; latent heat of vaporization)",
+          desc: "Fuels are classified by physical state (solid, liquid, gas) and origin (fossil or renewable). The calorific value measures how much heat a fuel releases per unit mass or volume when burned completely. The Higher Calorific Value (HCV) includes the heat recovered from condensing the water vapor produced; the Lower Calorific Value (LCV) doesn't, since that water usually escapes as vapor in real combustion.",
+          whenToUse: "Use calorific values to compare fuel efficiency or to calculate how much heat a given mass of fuel will release — essential for boiler design, engine efficiency calculations, and fuel selection.",
+          steps: [
+            { text: "Determine the fuel's HCV, either from a bomb calorimeter measurement or a standard reference table." },
+            { text: "Find the mass fraction of hydrogen in the fuel, since burning hydrogen is what produces the water vapor." },
+            { text: "Subtract the latent heat carried away by that water vapor to get the LCV: LCV = HCV - (mass H2O &times; 2440 kJ/kg)." }
+          ],
+          example: { f: "A fuel has HCV = 45,000 kJ/kg and produces 1.0 kg of H2O per kg of fuel burned. Find its LCV.", steps: [
+            "Latent heat of vaporization of water &approx; 2440 kJ/kg",
+            "Heat carried away by water vapor = 1.0 &times; 2440 = 2440 kJ/kg",
+            "LCV = HCV - 2440 = 45000 - 2440",
+            "Therefore, LCV = 42,560 kJ/kg"
+          ]},
+          practice: [
+            { q: "A fuel has HCV = 50,000 kJ/kg and produces 0.5 kg H2O per kg fuel. Find its LCV. (latent heat = 2440 kJ/kg)", a: ["48780"], hint: "Heat lost to vapor = 0.5 &times; 2440 = 1220. Subtract from HCV: 50000-1220." },
+            { q: "Which calorific value accounts for the heat recovered by condensing water vapor: HCV or LCV?", a: ["hcv", "higher calorific value"], hint: "The one with 'higher' in the name includes more heat recovery, since condensing water releases additional heat." }
+          ]
+        },
+        combustion: {
+          name: "Combustion Stoichiometry",
+          category: "Fuels",
+          subject: "chemistry",
+          formula: "CxHy + (x + y/4) O2 &rarr; x CO2 + (y/2) H2O",
+          desc: "Complete combustion of a hydrocarbon fuel consumes oxygen and produces carbon dioxide and water. Stoichiometric (theoretical) air is the exact amount of air needed for complete combustion with none left over; real combustion usually uses excess air to ensure nothing is left unburned.",
+          whenToUse: "Use this to calculate how much air or oxygen a fuel needs to burn completely, or to determine the percent excess air supplied in a real combustion process — key calculations in furnace, engine, and boiler design.",
+          steps: [
+            { text: "Write the balanced combustion equation for the fuel, producing only CO2 and H2O." },
+            { text: "Use the mole ratios from the balanced equation to find the theoretical (stoichiometric) oxygen needed." },
+            { text: "Convert oxygen to air using air's approximate composition (21% O2 by volume), and account for any excess air specified." }
+          ],
+          example: { f: "Find the theoretical O2 needed to completely burn 1 mol of CH4 (methane)", steps: [
+            "Balanced equation: CH4 + 2O2 &rarr; CO2 + 2H2O",
+            "The coefficient of O2 is 2, so 1 mol of CH4 needs 2 mol of O2",
+            "Therefore, 2 mol of O2 is the theoretical oxygen requirement"
+          ]},
+          practice: [
+            { q: "Balance the combustion of propane: C3H8 + ? O2 &rarr; 3CO2 + 4H2O. Find the coefficient of O2.", a: ["5"], hint: "Use the formula (x + y/4) with x=3 carbons and y=8 hydrogens." },
+            { q: "If a furnace uses 20% excess air, and the theoretical air required is 10 kg, how much air is actually supplied?", a: ["12"], hint: "Actual air = theoretical air &times; (1 + percent excess as a decimal) = 10 &times; 1.20." }
+          ]
+        }
+      };
+
+      var currentSubject = "calculus";
+      var currentKey = "limits";
+      var tabBar = document.getElementById("tab-bar");
+      var subjectSwitcher = document.getElementById("subject-switcher");
+      var contentArea = document.getElementById("content-area");
+
+      var subjectLabels = { calculus: "Differential Calculus", chemistry: "Chemistry for Engineers" };
+
+      var subjectIntros = {
+        calculus: "Differential calculus is the branch of mathematics that deals with derivatives and limits — how quantities change from one instant to the next. It's the foundation for analyzing rates, slopes, and optimization, and it underpins nearly every quantitative engineering course that follows.",
+        chemistry: "Chemistry for Engineers applies core chemical principles to problems engineers actually run into: electrochemical cells for power generation and corrosion protection, nuclear processes for energy and material analysis, and the fuels that drive combustion systems. The focus is on understanding the chemistry behind the equipment and processes you'll design, operate, and evaluate — not memorizing reactions for their own sake."
+      };
+
+      var subjectReferences = {
+        chemistry: [
+          { code: "Ref01", text: "Cede&ntilde;o, K. (unpublished). Chemistry for Engineers Module (unpublished)." },
+          { code: "Ref02", text: "Brown, L. and Holme, T. (2012). Chemistry for Engineering, 2nd Edition. Cengage Learning Asia Pte Ltd, Singapore." },
+          { code: "Ref03", text: "Silberberg, M.S. (2013). Principles of General Chemistry, 3rd Edition. McGraw Hill International Edition." },
+          { code: "Ref04", text: "Whitten, K.W., Davis, R.E., Peck, M.L., Stanley, G.G. (2005). General Chemistry, 7th Edition. Thomson Asia Pte Ltd." },
+          { code: "Ref05", text: "Callister, W.D., Rethwisch, D.G. (2011). Materials Science and Engineering, 8th Edition. John Wiley &amp; Sons (Asia) Pte Ltd." },
+          { code: "Ref06", text: "Mukhopadhyay, R., Datta, S. (2007). Engineering Chemistry. New Age International (P) Ltd., New Delhi." },
+          { code: "Ref07", text: "American Chemical Society (2017). Safety in Academic Chemistry Laboratories, 8th ed. Washington DC." },
+          { code: "Ref08", text: "American Chemical Society / UNT Risk Management Services (2020, July 17). HCS and GHS Training Module 2. Retrieved from riskmanagement.unt.edu/hcs-ghs-module2." },
+          { code: "Ref09", text: "Philippine Clean Air Act, DENR Administrative Order (DAO 2016-08)." },
+          { code: "Ref10", text: "World Health Organization guidelines." },
+          { code: "Ref11", text: "US Environmental Protection Agency. <a href=\"https://www.epa.gov\" target=\"_blank\" rel=\"noopener\">epa.gov</a>" }
+        ]
+      };
+
+      // per-rule progress: current problem index + count solved
+      var progress = {};
+      var totalProblems = 0;
+      Object.keys(rules).forEach(function(key) {
+        progress[key] = { index: 0, solved: 0 };
+        totalProblems += rules[key].practice.length;
+      });
+
+      function normalize(s) {
+        return s.toLowerCase()
+          .replace(/\s+/g, "")
+          .replace(/[−–—]/g, "-")
+          .replace(/[()]/g, "")
+          .replace(/\*/g, "")
+          .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, function(m) {
+            return "⁰¹²³⁴⁵⁶⁷⁸⁹".indexOf(m);
+          })
+          .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, function(m) {
+            return "₀₁₂₃₄₅₆₇₈₉".indexOf(m);
+          });
+      }
+
+      // Turns caret notation like x^2 or x^(n-1) into real superscript
+      // markup, so it renders as x² instead of x^2.
+      function supify(str) {
+        return String(str)
+          .replace(/\^\(([^)]+)\)/g, "<sup>$1</sup>")
+          .replace(/\^(-?[A-Za-z0-9]+)/g, "<sup>$1</sup>");
+      }
+
+      function renderSubjectMeta() {
+        var introEl = document.getElementById("subject-intro");
+        introEl.textContent = subjectIntros[currentSubject] || "";
+
+        var refsEl = document.getElementById("references-section");
+        refsEl.innerHTML = "";
+        var refs = subjectReferences[currentSubject];
+        if (refs && refs.length) {
+          var details = document.createElement("details");
+          details.className = "references-card";
+          var summary = document.createElement("summary");
+          summary.textContent = "References";
+          details.appendChild(summary);
+
+          var list = document.createElement("div");
+          list.style.marginTop = "14px";
+          refs.forEach(function(r) {
+            var row = document.createElement("div");
+            row.className = "ref-row";
+            row.innerHTML = '<div class="ref-code">' + r.code + '</div><div>' + r.text + '</div>';
+            list.appendChild(row);
+          });
+          details.appendChild(list);
+          refsEl.appendChild(details);
+        }
+      }
+
+      function renderSubjectSwitcher() {
+        subjectSwitcher.innerHTML = "";
+        var subjectOrder = [];
+        Object.keys(rules).forEach(function(key) {
+          var subj = rules[key].subject || "calculus";
+          if (subjectOrder.indexOf(subj) === -1) subjectOrder.push(subj);
+        });
+
+        subjectOrder.forEach(function(subj) {
+          var btn = document.createElement("button");
+          btn.className = "subject-btn" + (subj === currentSubject ? " active" : "");
+          btn.textContent = subjectLabels[subj] || subj;
+          btn.onclick = function() {
+            if (subj === currentSubject) return;
+            currentSubject = subj;
+            // jump to the first topic in the newly selected subject
+            var firstKey = Object.keys(rules).filter(function(k) {
+              return (rules[k].subject || "calculus") === currentSubject;
+            })[0];
+            currentKey = firstKey;
+            renderSubjectSwitcher();
+            renderSubjectMeta();
+            renderTabs();
+            renderContent();
+          };
+          subjectSwitcher.appendChild(btn);
+        });
+      }
+
+      function renderTabs() {
+        tabBar.innerHTML = "";
+        var keys = Object.keys(rules).filter(function(k) {
+          return (rules[k].subject || "calculus") === currentSubject;
+        });
+
+        // Group keys by category, preserving first-seen order
+        var categoryOrder = [];
+        var byCategory = {};
+        keys.forEach(function(key) {
+          var cat = rules[key].category || "Other";
+          if (!byCategory[cat]) {
+            byCategory[cat] = [];
+            categoryOrder.push(cat);
+          }
+          byCategory[cat].push(key);
+        });
+
+        categoryOrder.forEach(function(cat) {
+          var group = document.createElement("div");
+          group.className = "tab-group";
+
+          var label = document.createElement("div");
+          label.className = "tab-group-label";
+          label.textContent = cat;
+          group.appendChild(label);
+
+          var row = document.createElement("div");
+          row.className = "tab-group-row";
+
+          byCategory[cat].forEach(function(key) {
+            var isDone = progress[key].solved >= rules[key].practice.length;
+            var btn = document.createElement("button");
+            btn.className = "tab-btn" + (key === currentKey ? " active" : "") + (isDone ? " done" : "");
+            btn.textContent = rules[key].name;
+            btn.onclick = (function(k) {
+              return function() {
+                currentKey = k;
+                renderTabs();
+                renderContent();
+              };
+            })(key);
+            row.appendChild(btn);
+          });
+
+          group.appendChild(row);
+          tabBar.appendChild(group);
+        });
+      }
+
+      function renderContent() {
+        var r = rules[currentKey];
+        contentArea.innerHTML = "";
+
+        // Formula card
+        var formulaCard = document.createElement("div");
+        formulaCard.className = "card";
+        formulaCard.innerHTML =
+          '<div class="card-title">Formula</div>' +
+          '<div class="formula-box">' + supify(r.formula) + '</div>' +
+          '<p class="description">' + supify(r.desc) + '</p>' +
+          '<p class="description" style="margin-top:10px;"><strong style="color:var(--text-primary);">When to use it:</strong> ' + supify(r.whenToUse) + '</p>';
+        contentArea.appendChild(formulaCard);
+
+        // Steps card
+        var stepsCard = document.createElement("div");
+        stepsCard.className = "card";
+        var stepsHtml = '<div class="card-title">How to apply</div>';
+        for (var i = 0; i < r.steps.length; i++) {
+          stepsHtml += '<div class="step"><div class="step-num">' + (i+1) + '</div><div class="step-body">' + supify(r.steps[i].text) + '</div></div>';
+        }
+        stepsCard.innerHTML = stepsHtml;
+        contentArea.appendChild(stepsCard);
+
+        // Example card
+        var exCard = document.createElement("div");
+        exCard.className = "card";
+        var exHtml = '<div class="card-title">Worked example</div><div class="example-func">' + supify(r.example.f) + '</div>';
+        exHtml += '<button class="reveal-btn" id="ex-reveal">Show step-by-step solution</button>';
+        exHtml += '<div id="ex-steps" class="hidden" style="margin-top:14px;">';
+        for (var j = 0; j < r.example.steps.length; j++) {
+          exHtml += '<div class="step"><div class="step-num">' + (j+1) + '</div><div class="step-body">' + supify(r.example.steps[j]) + '</div></div>';
+        }
+        exHtml += '</div>';
+        exCard.innerHTML = exHtml;
+        contentArea.appendChild(exCard);
+
+        var exRevealBtn = document.getElementById("ex-reveal");
+        var exSteps = document.getElementById("ex-steps");
+        exRevealBtn.addEventListener("click", function() {
+          exSteps.classList.toggle("hidden");
+          exRevealBtn.textContent = exSteps.classList.contains("hidden")
+            ? "Show step-by-step solution"
+            : "Hide step-by-step solution";
+        });
+
+        // Practice card
+        renderPracticeCard(r);
+      }
+
+      function renderPracticeCard(r) {
+        var total = r.practice.length;
+        var prog = progress[currentKey];
+        var isComplete = prog.solved >= total;
+        var idx = Math.min(prog.index, total - 1);
+        var problem = r.practice[idx];
+
+        var card = document.createElement("div");
+        card.className = "card";
+
+        var headerHtml =
+          '<div class="card-title">Practice problem</div>' +
+          '<div class="practice-count">' + (idx + 1) + ' of ' + total + (isComplete ? ' — all solved 🎉' : '') + '</div>';
+
+        card.innerHTML = headerHtml;
+
+        if (isComplete) {
+          var doneMsg = document.createElement("div");
+          doneMsg.className = "feedback done";
+          doneMsg.textContent = "Nice work — you've solved every practice problem for the " + r.name.toLowerCase() + ". Pick another tab to keep going.";
+          card.appendChild(doneMsg);
+          contentArea.appendChild(card);
+          return;
+        }
+
+        var body = document.createElement("div");
+        body.style.marginTop = "14px";
+        body.innerHTML =
+          '<div class="example-func" style="font-size:17px;text-align:left;">' + supify(problem.q) + '</div>' +
+          '<input type="text" class="practice-input" id="practice-input" placeholder="Type your answer, e.g. 5x⁴" autocomplete="off" spellcheck="false">' +
+          '<div class="btn-row">' +
+            '<button class="check-btn" id="check-btn">Check answer</button>' +
+            '<button class="hint-btn" id="hint-btn">Need a hint?</button>' +
+          '</div>' +
+          '<div class="hint-text" id="hint-text">' + supify(problem.hint) + '</div>' +
+          '<div class="feedback" id="practice-feedback"></div>' +
+          '<div class="btn-row" id="next-row"></div>';
+        card.appendChild(body);
+        contentArea.appendChild(card);
+
+        var input = document.getElementById("practice-input");
+        var checkBtn = document.getElementById("check-btn");
+        var hintBtn = document.getElementById("hint-btn");
+        var hintText = document.getElementById("hint-text");
+        var feedback = document.getElementById("practice-feedback");
+        var nextRow = document.getElementById("next-row");
+
+        hintBtn.addEventListener("click", function() {
+          var showing = hintText.style.display === "block";
+          hintText.style.display = showing ? "none" : "block";
+          hintBtn.textContent = showing ? "Need a hint?" : "Hide hint";
+        });
+
+        function submit() {
+          var raw = input.value.trim();
+          if (!raw) return;
+          var norm = normalize(raw);
+          var acceptable = problem.a.map(normalize);
+          var isCorrect = acceptable.indexOf(norm) !== -1;
+
+          feedback.className = "feedback " + (isCorrect ? "correct" : "wrong");
+          feedback.style.display = "block";
+
+          if (isCorrect) {
+            feedback.textContent = "Correct! Great job.";
+            checkBtn.disabled = true;
+            input.disabled = true;
+
+            if (prog.index === idx) {
+              prog.solved = Math.max(prog.solved, idx + 1);
+            }
+            renderTabs();
+
+            var hasNext = idx + 1 < total;
+            nextRow.innerHTML = "";
+            if (hasNext) {
+              var nextBtn = document.createElement("button");
+              nextBtn.className = "next-btn";
+              nextBtn.textContent = "Next problem →";
+              nextBtn.addEventListener("click", function() {
+                prog.index = idx + 1;
+                renderPracticeCardRefresh(r);
+              });
+              nextRow.appendChild(nextBtn);
+            } else {
+              var doneBtn = document.createElement("div");
+              doneBtn.className = "feedback done";
+              doneBtn.style.marginTop = "4px";
+              doneBtn.textContent = "That's the last problem for this rule — nice work!";
+              nextRow.appendChild(doneBtn);
+            }
+          } else {
+            feedback.textContent = "Not quite — check your signs and exponents, then try again.";
+          }
+        }
+
+        function renderPracticeCardRefresh(r) {
+          // Remove just the practice card and re-render it
+          card.remove();
+          renderPracticeCard(r);
+        }
+
+        checkBtn.addEventListener("click", submit);
+        input.addEventListener("keydown", function(e) {
+          if (e.key === "Enter") submit();
+        });
+      }
+
+      renderSubjectSwitcher();
+      renderSubjectMeta();
+      renderTabs();
+      renderContent();
+    }
+  </script>
+</body>
+</html>
